@@ -1,0 +1,17 @@
+version: "3"
+services:
+    app:
+        image: "moririn2528/narcissus-server:test"
+        container_name: server
+        env_file:
+            - .env
+        # tty: true # 永続化
+        ports:
+            - ${PORT}:${PORT}
+        volumes:
+            - type: bind
+              source: ./log/go.log
+              target: /debug.log
+            - type: bind
+              source: ../../go/sqlite
+              target: /sqlite
