@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'location/location.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -58,6 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         );
                       },
                     )
+                  : Center(child: CircularProgressIndicator()),
+            ),
+            FutureBuilder(
+              future: determinePosition(),
+              builder: (context, snapshot) => snapshot.hasData
+                  ? Text(snapshot.data.toString())
                   : Center(child: CircularProgressIndicator()),
             )
           ],
