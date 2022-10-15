@@ -3,8 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const SearchPage());
 }
 
@@ -45,7 +47,6 @@ class _SearchGroupState extends State<SearchGroup> {
   @override
   void initState() {
     super.initState();
-    // searchProvider.fetchtags();
   }
 
   @override
@@ -60,8 +61,10 @@ class _SearchGroupState extends State<SearchGroup> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Flexible(child: SearchBar(), flex: 1),
-            Expanded(
-                child: Suggestions(), flex: SearchProvider().isopened() * 2),
+            LimitedBox(
+              child: Suggestions(),
+              maxHeight: 200,
+            ),
             Flexible(child: Keep(), flex: 1),
           ],
         ));
