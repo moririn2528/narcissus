@@ -40,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
   PageController _pageController = PageController();
   int _page = 0;
 
+// メニューのリスト
   List<BottomNavigationBarItem> BottomNavItems() {
     return [
       BottomNavigationBarItem(
@@ -59,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
         body: PageView(
           controller: _pageController,
           onPageChanged: (index) => setState(() => _page = index),
+          // ページのリスト
           children: <Widget>[
             TestPage(),
             SearchPage(),
@@ -66,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         bottomNavigationBar: BottomNavigationBar(
           items: BottomNavItems(),
+          // メニュータップ時の処理
           onTap: (index) {
             setState(() {
               _page = index;
