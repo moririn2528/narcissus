@@ -11,7 +11,7 @@ class SearchProvider with ChangeNotifier {
   TextEditingController fieldController = new TextEditingController(text: '');
 
   SearchProvider() {
-    fetchtags();
+    fetchtags().then(((value) => null), onError: (error) => print(error));
   }
 
   Future<List> fetchtags() async {

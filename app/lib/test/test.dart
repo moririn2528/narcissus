@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import '../picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../location/location.dart';
+import '../location/provider.dart';
+import 'package:provider/provider.dart';
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});
@@ -15,10 +17,9 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage> {
   Future<List>? data;
-
+  final LocationProvider locationProvider = LocationProvider();
   @override
   Widget build(BuildContext context) {
-    fetchTest();
     return Scaffold(
         appBar: AppBar(
           title: Text('Test'),
@@ -41,12 +42,15 @@ class _TestPageState extends State<TestPage> {
                     )
                   : Center(child: CircularProgressIndicator()),
             ),
-            FutureBuilder(
-              future: determinePosition(),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? Text(snapshot.data.toString())
-                  : Center(child: CircularProgressIndicator()),
-            )
+            MultiProvider(
+                providers: [
+                  ChangeNotifierProvider<LocationProvider>(
+                    create: (context) => LocationProvider(),
+                  ),
+                ],
+                child: locationProvider.position == null
+                    ? Text("しばらくお待ちください")
+                    : Text(locationProvider.position.toString())),
           ],
         ));
   }
