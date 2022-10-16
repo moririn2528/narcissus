@@ -10,38 +10,15 @@ Future main() async {
   runApp(const SearchPage());
 }
 
-// メイン関数として実行するための外枠
-class SearchPage extends StatelessWidget {
+// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
+class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return Builder(
-        builder: (context) => MaterialApp(
-              title: 'Flutter Demo',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Search'),
-                ),
-                body: const SearchGroup(),
-              ),
-            ));
-  }
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
-class SearchGroup extends StatefulWidget {
-  const SearchGroup({super.key});
-
-  @override
-  State<SearchGroup> createState() => _SearchGroupState();
-}
-
-class _SearchGroupState extends State<SearchGroup> {
+class _SearchPageState extends State<SearchPage> {
   final SearchProvider searchProvider = SearchProvider();
 
   @override
@@ -51,23 +28,28 @@ class _SearchGroupState extends State<SearchGroup> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SearchProvider>(
-            create: (context) => SearchProvider(),
-          ),
-        ],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Flexible(child: SearchBar(), flex: 1),
-            LimitedBox(
-              child: Suggestions(),
-              maxHeight: 200,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search'),
+      ),
+      body: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SearchProvider>(
+              create: (context) => SearchProvider(),
             ),
-            Flexible(child: Keep(), flex: 1),
           ],
-        ));
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Flexible(child: SearchBar(), flex: 1),
+              LimitedBox(
+                child: Suggestions(),
+                maxHeight: 200,
+              ),
+              Flexible(child: Keep(), flex: 1),
+            ],
+          )),
+    );
   }
 }
 

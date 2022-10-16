@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'location/location.dart';
+import 'search/search.dart';
+import 'test/test.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -35,55 +37,52 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<List>? data;
+  PageController _pageController = PageController();
+  int _page = 0;
+
+  List<BottomNavigationBarItem> BottomNavItems() {
+    return [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.search),
+        label: 'Search',
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
-    fetchTest();
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Column(
-          children: [
-            Text("http://${dotenv.get('API_IP')}/api/plant"),
-            FutureBuilder(
-              future: fetchTest(),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(snapshot.data?[index]["name"]),
-                          subtitle: Text(snapshot.data?[index]["url"]),
-                        );
-                      },
-                    )
-                  : Center(child: CircularProgressIndicator()),
-            ),
-            FutureBuilder(
-              future: determinePosition(),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? Text(snapshot.data.toString())
-                  : Center(child: CircularProgressIndicator()),
-            )
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) => setState(() => _page = index),
+          children: <Widget>[
+            TestPage(),
+            SearchPage(),
           ],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: BottomNavItems(),
+          onTap: (index) {
+            setState(() {
+              _page = index;
+              _pageController.animateToPage(index,
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut);
+            });
+          },
+          currentIndex: _page,
         ));
-  }
-
-  Future<List> fetchTest() async {
-    final response =
-        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load test');
-    }
   }
 
   @override
   void initState() {
     super.initState();
-    data = fetchTest();
+    _pageController = PageController(
+      initialPage: _page,
+    );
   }
 }
