@@ -21,3 +21,4 @@ app/android/app/google-services.json
 app/lib/firebase_options.dart
 app/ios/Runner/GoogleService-Info.plist
 app/ios/firebase_app_id_file.json
+gcloud.json

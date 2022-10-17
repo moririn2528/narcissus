@@ -1,14 +1,17 @@
 package usecase
 
-import "narcissus/errors"
+import (
+	"context"
+	"narcissus/errors"
+)
 
 type Tag struct {
-	Id   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
+	Id   int    `json:"id" firestore:"id"`
+	Name string `json:"name" firestore:"name"`
 }
 
-func ListTag() ([]Tag, error) {
-	tags, err := DbTag.ListTag()
+func ListTag(ctx context.Context) ([]Tag, error) {
+	tags, err := DbTag.ListTag(ctx)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}

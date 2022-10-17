@@ -1,0 +1,24 @@
+plant(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+	detail TEXT,
+    rarity INTEGER NOT NULL DEFAULT 0,
+    hash string,
+    uploads(
+        id INTEGER PRIMARY KEY,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        hash TEXT NOT NULL,
+        upload_time DATETIME NOT NULL,
+    );
+    tags(
+        id INTEGER PRIMARY KEY,
+    )
+);
+
+-- タグ情報を格納するテーブル
+CREATE TABLE tag(
+	id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL,
+	unique(name)
+);

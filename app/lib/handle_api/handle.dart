@@ -9,7 +9,7 @@ Future<List<dynamic>> fetchTest() async {
   late List data = [];
   try {
     final response =
-        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
+        await http.get(Uri.parse("${dotenv.get('API_URI')}/api/plant"));
     if (response.statusCode == 200) {
       data = json.decode(response.body);
     } else {
@@ -42,7 +42,7 @@ Future<Plants> getNearPlant(LocationData position,
 
 Future<List> getTags() async {
   final response =
-      await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/tag'));
+      await http.get(Uri.parse('${dotenv.get('API_URI')}/api/tag'));
   if (response.statusCode == 200) {
     final List data = jsonDecode(response.body);
     return data;

@@ -1,7 +1,6 @@
 package communicate
 
 import (
-	"log"
 	"math"
 	"net/http"
 	"sort"
@@ -35,7 +34,7 @@ func (n NearPlants) Less(i, j int) bool {
 	return n[i].Distance < n[j].Distance
 }
 
-func listNear(w http.ResponseWriter, req *http.Request) error {
+func ListNear(w http.ResponseWriter, req *http.Request) error {
 	var err error
 
 	// 緯度経度を受け取る
@@ -59,7 +58,7 @@ func listNear(w http.ResponseWriter, req *http.Request) error {
 	}
 
 	// 範囲内にある投稿と植物のリストを受け取る
-	nears, err := usecase.ListNear(latitude, longitude, length)
+	nears, err := usecase.ListNear(req.Context(), latitude, longitude, length)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
@@ -103,26 +102,4 @@ func listNear(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 	return nil
-}
-
-func NearHandle(w http.ResponseWriter, req *http.Request) {
-	var err error
-	switch req.Method {
-	case "GET":
-		err = listNear(w, req)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if err == nil {
-		return
-	}
-	my_err, ok := err.(*errors.MyError)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Print("wrap error")
-		return
-	}
-	w.WriteHeader(my_err.GetCode())
-	log.Print(my_err.Error())
 }
