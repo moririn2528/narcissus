@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:geolocator/geolocator.dart';
+import '../location/location.dart';
+import '../handle_api/handle.dart';
 
 void init_notification() {
   AwesomeNotifications().initialize(
@@ -28,6 +31,53 @@ void init_notification() {
             importance: NotificationImportance.High)
       ],
       debug: true);
+}
+
+class Notifier {
+  var permission;
+  Notifier() {
+    getPermission();
+  }
+
+  Position lastPosition = Position(
+      latitude: 0,
+      longitude: 0,
+      altitude: 0,
+      accuracy: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),
+      isMocked: false);
+  Position currentPosition = Position(
+      latitude: 0,
+      longitude: 0,
+      altitude: 0,
+      accuracy: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),
+      isMocked: false);
+
+  void getPermission() async {
+    permission = await Geolocator.checkPermission();
+  }
+
+  void call_periodic_notification() async {
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      await Geolocator.getCurrentPosition().then((value) {
+        currentPosition = value;
+        if (distanceBetween(lastPosition, currentPosition) > 100) {
+          Timer.periodic(Duration(seconds: 5), (timer) async {
+            await notifyPlant();
+          });
+        }
+      });
+      lastPosition = currentPosition;
+    }
+  }
 }
 
 Future<void> notifyNow() async {
@@ -71,26 +121,5 @@ Future<void> notifyPlant() async {
     }
   }, onError: (e) {
     print(e);
-  });
-}
-
-Future<List> getNearPlant() async {
-  await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/near')).then(
-      (value) {
-    if (value.statusCode == 200) {
-      final List data = jsonDecode(value.body);
-      if (data.isNotEmpty) {
-        return data;
-      }
-    }
-  }, onError: (e) {
-    print(e);
-  });
-  return [];
-}
-
-void call_periodic_notification() {
-  Timer.periodic(Duration(seconds: 5), (timer) async {
-    await notifyPlant();
   });
 }

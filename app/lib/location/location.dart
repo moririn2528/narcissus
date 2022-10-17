@@ -32,3 +32,11 @@ Future<Position> determinePosition() async {
   // デバイスの位置情報を返す。
   return await Geolocator.getCurrentPosition();
 }
+
+double distanceBetween(Position lastPosition, Position currentPosition) {
+  return Geolocator.distanceBetween(
+      lastPosition.latitude,
+      lastPosition.longitude,
+      currentPosition.latitude,
+      currentPosition.longitude);
+}
