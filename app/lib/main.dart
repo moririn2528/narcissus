@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:developer';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'notification/notification.dart';
 import 'search/search.dart';
 import 'test/test.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");

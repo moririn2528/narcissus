@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'Dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -43,7 +42,7 @@ Future<void> notifyNow() async {
   ));
 }
 
-Future<void> notifyLater(FlutterLocalNotificationsPlugin flnp) async {
+Future<void> notifyLater() async {
   Timer(Duration(seconds: 5), () async {
     AwesomeNotifications().createNotification(
         content: NotificationContent(

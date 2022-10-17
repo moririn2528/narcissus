@@ -53,7 +53,7 @@ class _TestPageState extends State<TestPage> {
                     ? Text("しばらくお待ちください")
                     : Text(locationProvider.position.toString())),
             OutlinedButton(onPressed: () => notifyNow(), child: Text("今すぐ通知")),
-            // OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
+            OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
           ],
         ));
   }
