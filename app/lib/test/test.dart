@@ -1,12 +1,15 @@
+import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:convert';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 import '../picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../location/location.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http/io_client.dart' as http;
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});
@@ -20,6 +23,7 @@ class _TestPageState extends State<TestPage> {
   final LocationProvider locationProvider = LocationProvider();
   @override
   Widget build(BuildContext context) {
+    call_periodic_notification();
     return Scaffold(
         appBar: AppBar(
           title: Text('Test'),
@@ -28,7 +32,9 @@ class _TestPageState extends State<TestPage> {
           children: [
             Text("http://${dotenv.get('API_IP')}/api/plant"),
             FutureBuilder(
-              future: fetchTest(),
+              future: fetchTest().then((value) => value, onError: (e) {
+                print(e);
+              }),
               builder: (context, snapshot) => snapshot.hasData
                   ? ListView.builder(
                       shrinkWrap: true,
@@ -51,18 +57,27 @@ class _TestPageState extends State<TestPage> {
                 child: locationProvider.position == null
                     ? Text("しばらくお待ちください")
                     : Text(locationProvider.position.toString())),
+            OutlinedButton(onPressed: () => notifyNow(), child: Text("今すぐ通知")),
+            // OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
           ],
         ));
   }
 
-  Future<List> fetchTest() async {
-    final response =
-        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load test');
+  Future<List<dynamic>> fetchTest() async {
+    late List data = [];
+    try {
+      final response = await http.get(
+          Uri.parse("http://${dotenv.get('API_IP')}/api/plant"),
+          headers: {"Content-Type": "application/json"});
+      if (response.statusCode == 200) {
+        data = json.decode(response.body);
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (err) {
+      print(err);
     }
+    return data;
   }
 
   @override
