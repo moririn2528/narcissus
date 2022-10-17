@@ -1,15 +1,10 @@
 import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'dart:convert';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
-import '../picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../location/location.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/io_client.dart' as http;
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});

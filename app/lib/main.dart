@@ -11,7 +11,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
-  configureLocalTimeZone();
   init_notification();
   runApp(const MyApp());
 }
