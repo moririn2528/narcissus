@@ -14,7 +14,7 @@ BEGIN
     UPDATE plant SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-INSERT INTO plant(id,name,hash) VALUES (0,"hoge","huga", 0),(1,"piyo","hash", 1);
+INSERT INTO plant(id,name,hash,rarity) VALUES (0,"hoge","huga", 0),(1,"piyo","hash", 1);
 
 -- タグ情報を格納するテーブル
 CREATE TABLE tag(
@@ -42,7 +42,7 @@ CREATE TABLE post(
 	plant_id INTEGER NOT NULL,
 	latitude REAL NOT NULL,
 	longitude REAL NOT NULL,
-    hash TEXT NOT NULL,
+	hash TEXT NOT NULL,
 	created_at TIMESTAMP DEFAULT (datetime('now','localtime')),
 	FOREIGN KEY  (plant_id) REFERENCES plant(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
