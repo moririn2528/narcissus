@@ -16,9 +16,9 @@ type NearPlant struct {
 	Id        int     `json:"id"`
 	Name      string  `json:"name"`
 	Url       string  `json:"url"`
-	Latitude  float64 `json:"latitude" db:"latitude"`
-	Longitude float64 `json:"longitude" db:"longitude"`
-	Distance  float64 `json:"distance" db:"distance"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Distance  float64 `json:"distance"`
 }
 type NearPlants []NearPlant
 
@@ -79,12 +79,21 @@ func listNear(w http.ResponseWriter, req *http.Request) error {
 				Longitude: v.Longitude,
 				Distance:  distance})
 	}
-
 	// 距離でソートする
 	sort.Sort(sorted_nears)
 
+	type Result struct {
+		IsEmpty int        `json:"IsEmpty"`
+		Datas   NearPlants `json:"Datas"`
+	}
+	isEmp := 0
+	if len(sorted_nears) == 0 {
+		isEmp = 1
+	}
+	res := Result{IsEmpty: isEmp, Datas: sorted_nears}
+
 	// JSONに変換して返す
-	err = ResponseJson(w, sorted_nears)
+	err = ResponseJson(w, res)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
