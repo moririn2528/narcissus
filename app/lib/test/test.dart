@@ -1,7 +1,5 @@
 import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +8,6 @@ import '../picturesListView.dart';
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});
-
   @override
   State<TestPage> createState() => _TestPageState();
 }
@@ -56,7 +53,7 @@ class _TestPageState extends State<TestPage> {
             OutlinedButton(onPressed: () => notifyNow(), child: Text("今すぐ通知")),
             OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
             OutlinedButton(
-                onPressed: () => notifyPlant(LocationProvider().position),
+                onPressed: () => notifyPlant(locationProvider.position),
                 child: Text("近くの植物を探す")),
             AssetPicturesListView(imageDatas: [
               ["images/a.png", "つくし"],

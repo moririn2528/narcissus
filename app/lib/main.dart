@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'notification/notification.dart';
 import 'search/search.dart';
 import 'test/test.dart';
 
 Future main() async {
-  await dotenv.load(fileName: ".env");
-  init_notification();
-  init_notification();
-  runApp(const MyApp());
+  await dotenv.load(fileName: ".env").then((value) {
+    WidgetsFlutterBinding.ensureInitialized();
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {

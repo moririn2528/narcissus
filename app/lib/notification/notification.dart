@@ -1,9 +1,6 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'Dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import '../location/location.dart';
@@ -19,13 +16,6 @@ void init_notification() async {
         // set the icon to null if you want to use the default app icon
         'resource://drawable/notification',
         [
-          NotificationChannel(
-              channelGroupKey: 'basic_channel_group',
-              channelKey: 'basic_channel',
-              channelName: 'Basic notifications',
-              channelDescription: 'Notification channel for basic tests',
-              defaultColor: Color(0xFF9D50DD),
-              ledColor: Colors.white),
           NotificationChannel(
               channelGroupKey: 'image_test',
               channelKey: 'image',
@@ -43,8 +33,6 @@ void init_notification() async {
           onStart: onStart,
           autoStart: true,
           isForegroundMode: true,
-          initialNotificationTitle: 'AWESOME SERVICE',
-          initialNotificationContent: 'Initializing',
         ),
         iosConfiguration: IosConfiguration(),
       );
@@ -83,6 +71,7 @@ Future<LocationPermission> getPermission() async {
 }
 
 Future<void> onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
   call_notification();
 }
 
@@ -90,12 +79,11 @@ void call_notification() async {
   getPermission().then((value) {
     if (permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse) {
-      Timer.periodic(Duration(seconds: 5), (timer) {
+      Timer.periodic(Duration(seconds: 600), (Timer timer) {
         Geolocator.getCurrentPosition().then((value) {
           currentPosition = value;
-          if (distanceBetween(lastPosition, currentPosition) >= 0) {
-            notifyNow();
-            // notifyPlant(currentPosition);
+          if (distanceBetween(lastPosition, currentPosition) >= 100) {
+            notifyPlant(currentPosition);
           }
           lastPosition = currentPosition;
         });
@@ -117,7 +105,7 @@ Future<void> notifyNow() async {
 }
 
 Future<void> notifyLater() async {
-  Timer(Duration(seconds: 5), () async {
+  Timer(Duration(seconds: 10), () async {
     AwesomeNotifications().createNotification(
         content: NotificationContent(
       id: 12345,
@@ -131,23 +119,25 @@ Future<void> notifyLater() async {
 }
 
 Future<void> notifyPlant(Position? position) async {
+  var data = [];
   if (position == null) {
     return;
   } else {
-    getNearPlant(position).then((data) {
+    getNearPlant(position).then((posts) {
+      data = posts;
       if (data.isNotEmpty) {
         AwesomeNotifications().createNotification(
             content: NotificationContent(
           id: 12345,
           channelKey: 'image',
           title: '近くに植物があります',
-          body: '近くに${data[0]['id']}があります',
+          body: '近くに${data[0]['name']}があります',
           largeIcon: 'https://www.fluttercampus.com/img/logo_small.webp',
           notificationLayout: NotificationLayout.BigPicture,
         ));
       }
     }, onError: (e) {
-      print(e);
+      throw (e);
     });
   }
 }

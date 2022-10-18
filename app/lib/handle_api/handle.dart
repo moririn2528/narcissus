@@ -1,11 +1,8 @@
 import 'dart:convert';
 import 'Dart:async';
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:geolocator/geolocator.dart';
-import '../location/location.dart';
 
 Future<List<dynamic>> fetchTest() async {
   late List data = [];
@@ -24,21 +21,23 @@ Future<List<dynamic>> fetchTest() async {
   return data;
 }
 
-Future<List> getNearPlant(Position position, {double length = 100}) async {
+Future<List> getNearPlant(Position position, {double length = 1000}) async {
+  var output = [];
   await http
       .get(Uri.parse(
-          'http://${dotenv.get('API_IP')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
+          //  ハードコードしないと動かない
+          'http://10.1.198.27/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
       .then((value) {
     if (value.statusCode == 200) {
-      final List data = jsonDecode(value.body)[1];
-      if (data.isNotEmpty) {
-        return data;
+      final data = jsonDecode(value.body);
+      if (data["IsEmpty"] == 0) {
+        output = data["Datas"];
       }
     }
   }, onError: (e) {
     print(e);
   });
-  return [];
+  return output;
 }
 
 Future<List> getTags() async {
