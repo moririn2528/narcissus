@@ -37,7 +37,7 @@ CREATE TABLE plant_tag(
 INSERT INTO plant_tag(plant_id,tag_id) VALUES (0,0),(0,1),(1,1);
 
 -- 投稿を保存するテーブル
-CREATE TABLE post(
+CREATE TABLE upload_post(
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	plant_id INTEGER NOT NULL,
 	latitude REAL NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE post(
 );
 
 -- 位置情報から近いやつを取ってくるためのテストデータ
-INSERT INTO post(plant_id, latitude, longitude, hash) VALUES
+INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES
 (0, 35.02527355160815, 135.77870285267127, "huga"), -- 百万遍付近
 (1, 35.02498254430388, 135.77890210637494, "hash"), -- 百万遍付近
 (0, 35.027641696798966, 135.7837294039685, "huga"), -- 総合研究7号館

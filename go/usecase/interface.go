@@ -15,13 +15,13 @@ type DatabaseNear interface {
 	ListNear(float64, float64, float64) ([]Near, error)
 }
 
-type DatabasePost interface {
-	InsertPost(Post) error
+type DatabaseUploadPost interface {
+	InsertUploadPost(UploadPost) error
 }
 
 var (
-	DbPlant DatabasePlant
-	DbTag   DatabaseTag
-	DbNear  DatabaseNear
-	DbPost  DatabasePost
+	DbPlant      DatabasePlant
+	DbTag        DatabaseTag
+	DbNear       DatabaseNear
+	DbUploadPost DatabaseUploadPost
 )

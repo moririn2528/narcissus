@@ -120,13 +120,13 @@ func insertPost(w http.ResponseWriter, req *http.Request) error {
 	}
 
 	// データベースに投稿をInsertする
-	post := usecase.Post{
+	post := usecase.UploadPost{
 		PlantId:   plantId,
 		Name:      name,
 		Hash:      hash,
 		Latitude:  latitude,
 		Longitude: longitude}
-	err = usecase.InsertPost(post)
+	err = usecase.InsertUploadPost(post)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
@@ -139,7 +139,7 @@ func insertPost(w http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
-func PostHandle(w http.ResponseWriter, req *http.Request) {
+func UploadPostHandle(w http.ResponseWriter, req *http.Request) {
 	var err error
 	switch req.Method {
 	case "POST":

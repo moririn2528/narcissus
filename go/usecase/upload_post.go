@@ -2,7 +2,7 @@ package usecase
 
 import "narcissus/errors"
 
-type Post struct { //json,dbの部分いらないかも
+type UploadPost struct { //json,dbの部分いらないかも
 	PlantId   int     `json:"plant_id" db:"plant_id"`
 	Name      string  `json:"name" db:"name"`
 	Hash      string  `json:"hash" db:"hash"`
@@ -10,8 +10,8 @@ type Post struct { //json,dbの部分いらないかも
 	Longitude float64 `json:"longitude" db:"longitude"`
 }
 
-func InsertPost(post Post) error {
-	err := DbPost.InsertPost(post)
+func InsertUploadPost(uploadPost UploadPost) error {
+	err := DbUploadPost.InsertUploadPost(uploadPost)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
