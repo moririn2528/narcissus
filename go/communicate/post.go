@@ -43,9 +43,16 @@ func postSnap(w http.ResponseWriter, req *http.Request) error {
 	}
 	////////////////////////////////////////////////////////////////////////
 
-	// 現時点では適当
-	plantId := 1
-	res := PostResult{IsNew: false, NewID: plantId}
+	// 植物データをDBに登録する(存在していたらしない)
+	plant := usecase.Plant{
+		Id:   -1, // Idは不明なので負にしておく
+		Name: name,
+		Hash: hash}
+	isNew, plantId, err := usecase.InsertPlant(plant)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+	res := PostResult{IsNew: isNew, NewID: plantId}
 
 	// データベースに投稿をInsertする
 	post := usecase.Post{

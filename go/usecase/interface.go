@@ -3,6 +3,7 @@ package usecase
 type DatabasePlant interface {
 	ListPlant() ([]Plant, error)
 	SearchPlant([]int, []int) ([]Plant, error)
+	InsertPlant(plant Plant) (bool, int, error)
 }
 
 type DatabaseTag interface {

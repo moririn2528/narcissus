@@ -118,3 +118,68 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	}
 	return plants, nil
 }
+
+// 植物データを挿入する
+// 返り値は, (挿入できたか, 新ID, error)
+func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
+
+	// nameが一致する植物が存在するかチェック
+	isExist, id, err := IsPlantExist(plant.Name)
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+	if isExist {
+		return false, id, nil
+	}
+
+	// 存在しなければ新IDを求める
+	newId, err := GetNewPlantID()
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+	if plant.Id > 0 { // plant.Idが指定されていればそれにする(被ったらエラー吐くけど)
+		newId = plant.Id
+	}
+
+	// 新しいデータとして挿入する
+	plant.Id = newId
+	query := "INSERT INTO plant(id, name, hash) VALUES("
+	query += strconv.Itoa(newId) + ","
+	query += strconv.Quote(plant.Name) + ","
+	query += strconv.Quote(plant.Hash)
+	query += ")"
+	_, err = db.Query(query)
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+	return true, newId, nil
+}
+
+// 存在しない新しいIDを返す
+// 返り値: (新ID, error)
+func GetNewPlantID() (int, error) {
+	var plants []usecase.Plant
+	query := "SELECT max(id) AS id, name, hash FROM plant"
+	err := db.Select(&plants, query)
+	if err != nil {
+		return -1, errors.ErrorWrap(err)
+	}
+	newId := 1
+	if len(plants) != 0 {
+		newId = plants[0].Id + 1
+	}
+	return newId, nil
+}
+
+// 名前から植物が存在するかをチェックする
+// 返り値: (存在するか, そのid, error)
+func IsPlantExist(name string) (bool, int, error) {
+	var plants []usecase.Plant
+	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
+	err := db.Select(&plants, query)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	isExist := len(plants) == 0
+	return isExist, plants[0].Id, nil
+}
