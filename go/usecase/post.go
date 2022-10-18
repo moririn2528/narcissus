@@ -2,7 +2,7 @@ package usecase
 
 import "narcissus/errors"
 
-type Post struct {
+type Post struct { //json,dbの部分いらないかも
 	PlantId   int     `json:"plant_id" db:"plant_id"`
 	Name      string  `json:"name" db:"name"`
 	Hash      string  `json:"hash" db:"hash"`

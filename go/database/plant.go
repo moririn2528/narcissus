@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
@@ -182,7 +183,8 @@ func IsPlantExist(name string) (bool, int, error) {
 	if err != nil {
 		return false, -1, errors.ErrorWrap(err)
 	}
-	isExist := len(plants) == 0
+
+	isExist := len(plants) > 0
 	return isExist, plants[0].Id, nil
 }
 
@@ -210,7 +212,7 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 	}
 
 	// 植物idとタグidの結びつけを登録
-	query_main += "INSERT INTO plant_tag(plant_id, tag_id) VALUES "
+	query_main = "INSERT INTO plant_tag(plant_id, tag_id) VALUES "
 	for i, t := range tags {
 		query_main += "("
 		query_main += strconv.Itoa(id) + ","
@@ -221,7 +223,8 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 		}
 	}
 	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
-	_, err = db.Query(query_main)
+	log.Print(query_main)
+	_, err = db.Exec(query_main)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
