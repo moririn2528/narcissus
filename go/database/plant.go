@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
@@ -146,12 +145,14 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 
 	// 新しいデータとして挿入する
 	plant.Id = newId
-	query := "INSERT INTO plant(id, name, hash) VALUES("
+	query := "INSERT INTO plant(id, name, hash, rarity) VALUES("
 	query += strconv.Itoa(newId) + ","
 	query += strconv.Quote(plant.Name) + ","
-	query += strconv.Quote(plant.Hash)
+	query += strconv.Quote(plant.Hash) + ","
+	query += strconv.Itoa(0)
 	query += ")"
-	_, err = db.Query(query)
+
+	_, err = db.Exec(query)
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
 	}
@@ -185,7 +186,11 @@ func IsPlantExist(name string) (bool, int, error) {
 	}
 
 	isExist := len(plants) > 0
-	return isExist, plants[0].Id, nil
+	plantId := -1
+	if isExist {
+		plantId = plants[0].Id
+	}
+	return isExist, plantId, nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
@@ -223,7 +228,7 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 		}
 	}
 	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
-	log.Print(query_main)
+
 	_, err = db.Exec(query_main)
 	if err != nil {
 		return errors.ErrorWrap(err)
