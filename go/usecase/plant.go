@@ -35,3 +35,13 @@ func InsertPlant(plant Plant) (bool, int, error) {
 	}
 	return isNew, newId, nil
 }
+
+// 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
+// isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
+func SetTagsToPlant(id int, tags []string, isAddTag bool) error {
+	err := DbPlant.SetTagsToPlant(id, tags, isAddTag)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+	return nil
+}

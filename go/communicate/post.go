@@ -19,7 +19,7 @@ func postSnap(w http.ResponseWriter, req *http.Request) error {
 
 	// 受け取る部分(POST送信にするから全部変える)
 
-	// 植物idを受け取る　これいる？
+	// 植物idを受け取る　これいらないかも
 	/*var id int64 = -1
 	id_str := req.FormValue("id")
 	if id_str != "" {
@@ -41,6 +41,17 @@ func postSnap(w http.ResponseWriter, req *http.Request) error {
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
+	// タグをありったけ受け取る
+	var index int = 1
+	var tags []string
+	for {
+		tag := req.FormValue("tag" + strconv.Itoa(index))
+		if tag == "" {
+			break
+		}
+		tags = append(tags, tag)
+		index++
+	}
 	////////////////////////////////////////////////////////////////////////
 
 	// 植物データをDBに登録する(存在していたらしない)
@@ -53,6 +64,14 @@ func postSnap(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 	res := PostResult{IsNew: isNew, NewID: plantId}
+
+	// 新しい植物ならタグを追加する
+	if isNew {
+		err = usecase.SetTagsToPlant(plantId, tags, true)
+		if err != nil {
+			return errors.ErrorWrap(err)
+		}
+	}
 
 	// データベースに投稿をInsertする
 	post := usecase.Post{

@@ -4,6 +4,7 @@ type DatabasePlant interface {
 	ListPlant() ([]Plant, error)
 	SearchPlant([]int, []int) ([]Plant, error)
 	InsertPlant(plant Plant) (bool, int, error)
+	SetTagsToPlant(int, []string, bool) error
 }
 
 type DatabaseTag interface {

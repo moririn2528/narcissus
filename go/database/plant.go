@@ -183,3 +183,17 @@ func IsPlantExist(name string) (bool, int, error) {
 	isExist := len(plants) == 0
 	return isExist, plants[0].Id, nil
 }
+
+// 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
+// isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
+func SetTagsToPlant(id int, tags []string, isAddTag bool) error {
+	// 存在するタグと存在しないタグを分ける部分
+	/*var tagIds []int
+	var noExistTags []string
+	query := "SELECT * FROM tag WHERE "
+	for _, t := range tags {
+		query += " name = " + strconv.Quote(t) + " OR "
+	}*/
+
+	return nil
+}
