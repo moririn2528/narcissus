@@ -5,11 +5,16 @@ type DatabasePlant interface {
 	SearchPlant([]int, []int) ([]Plant, error)
 }
 
-type DatabaseTag interface {	
+type DatabaseTag interface {
 	ListTag() ([]Tag, error)
+}
+
+type DatabaseNear interface {
+	ListNear(float64, float64, float64) ([]Near, error)
 }
 
 var (
 	DbPlant DatabasePlant
-	DbTag DatabaseTag
+	DbTag   DatabaseTag
+	DbNear  DatabaseNear
 )

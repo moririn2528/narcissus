@@ -44,9 +44,11 @@ func main() {
 
 	usecase.DbPlant = &database.DatabasePlant{}
 	usecase.DbTag = &database.DatabaseTag{}
+	usecase.DbNear = &database.DatabaseNear{}
 
 	http.HandleFunc("/api/plant", communicate.PlantHandle)
 	http.HandleFunc("/api/tag", communicate.TagHandle)
+	http.HandleFunc("/api/near", communicate.NearHandle)
 
 	// 画像を配置する静的フォルダ
 	// 参考文献：https://github.com/golang/go/issues/50638
