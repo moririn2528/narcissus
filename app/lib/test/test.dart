@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
 import '../handle_api/handle.dart';
+import '../picturesListView.dart';
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});
@@ -54,6 +55,14 @@ class _TestPageState extends State<TestPage> {
                     : Text(locationProvider.position.toString())),
             OutlinedButton(onPressed: () => notifyNow(), child: Text("今すぐ通知")),
             OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
+            OutlinedButton(
+                onPressed: () => notifyPlant(LocationProvider().position),
+                child: Text("近くの植物を探す")),
+            AssetPicturesListView(imageDatas: [
+              ["images/a.png", "つくし"],
+              ["images/b.png", "もみじ", "とても綺麗"],
+              ["images/c.png", "おはな"]
+            ])
           ],
         ));
   }

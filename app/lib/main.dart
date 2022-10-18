@@ -7,8 +7,7 @@ import 'test/test.dart';
 Future main() async {
   await dotenv.load(fileName: ".env");
   init_notification();
-  final Notifier notifier = Notifier();
-  notifier.call_periodic_notification();
+  init_notification();
   runApp(const MyApp());
 }
 

@@ -24,11 +24,13 @@ Future<List<dynamic>> fetchTest() async {
   return data;
 }
 
-Future<List> getNearPlant() async {
-  await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/near')).then(
-      (value) {
+Future<List> getNearPlant(Position position, {double length = 100}) async {
+  await http
+      .get(Uri.parse(
+          'http://${dotenv.get('API_IP')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
+      .then((value) {
     if (value.statusCode == 200) {
-      final List data = jsonDecode(value.body);
+      final List data = jsonDecode(value.body)[1];
       if (data.isNotEmpty) {
         return data;
       }
