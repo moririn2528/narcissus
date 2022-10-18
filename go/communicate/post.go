@@ -65,12 +65,11 @@ func postSnap(w http.ResponseWriter, req *http.Request) error {
 	}
 	res := PostResult{IsNew: isNew, NewID: plantId}
 
-	// 新しい植物ならタグを追加する
-	if isNew {
-		err = usecase.SetTagsToPlant(plantId, tags, true)
-		if err != nil {
-			return errors.ErrorWrap(err)
-		}
+	// タグを追加する
+	// 新しい植物にのみタグを付けたければisNewの場合にすれば良い
+	err = usecase.SetTagsToPlant(plantId, tags)
+	if err != nil {
+		return errors.ErrorWrap(err)
 	}
 
 	// データベースに投稿をInsertする

@@ -128,6 +128,8 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
 	}
+
+	// 存在する場合はそのidを返す
 	if isExist {
 		return false, id, nil
 	}
@@ -185,15 +187,44 @@ func IsPlantExist(name string) (bool, int, error) {
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
-// isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
-func SetTagsToPlant(id int, tags []string, isAddTag bool) error {
-	// 存在するタグと存在しないタグを分ける部分
-	/*var tagIds []int
-	var noExistTags []string
-	query := "SELECT * FROM tag WHERE "
-	for _, t := range tags {
-		query += " name = " + strconv.Quote(t) + " OR "
-	}*/
+// isAddTagがtrueなら、その植物に無い新しいタグも追加する
+func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
+	if len(tagNames) == 0 {
+		return nil
+	}
+
+	var tags []usecase.Tag
+	query_main := ""
+
+	// 各タグ名に一致するタグ情報を取ってくる
+	query_main += "SELECT * FROM tag WHERE "
+	for i, t := range tagNames {
+		query_main += " name = " + strconv.Quote(t)
+		if i < len(tagNames)-1 {
+			query_main += " OR "
+		}
+	}
+	err := db.Select(&tags, query_main)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+
+	// 植物idとタグidの結びつけを登録
+	query_main += "INSERT INTO plant_tag(plant_id, tag_id) VALUES "
+	for i, t := range tags {
+		query_main += "("
+		query_main += strconv.Itoa(id) + ","
+		query_main += strconv.Itoa(t.Id)
+		query_main += ")"
+		if i < len(tags)-1 {
+			query_main += ","
+		}
+	}
+	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
+	_, err = db.Query(query_main)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
 
 	return nil
 }
