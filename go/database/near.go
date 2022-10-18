@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"narcissus/errors"
 	"narcissus/usecase"
 
@@ -54,7 +53,6 @@ func (*DatabaseNear) ListNear(latitude float64, longitude float64, length float6
 	// 最終的なクエリ
 	query_main += "SELECT id, name, hash, latitude, longitude "
 	query_main += "FROM " + subquery_post + " NATURAL JOIN " + subquery_plant
-	log.Print(query_main)
 	err := db.Select(&nears, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
