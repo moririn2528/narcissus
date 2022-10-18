@@ -66,7 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (context, snapshot) => snapshot.hasData
                   ? Text(snapshot.data.toString())
                   : Center(child: CircularProgressIndicator()),
-            )
+            ),
+            AssetPicturesListView(imageDatas: [
+              ["images/a.png","つくし"],
+              ["images/b.png","もみじ","とても綺麗"],
+              ["images/c.png","おはな"]
+            ])
           ],
         ));
   }
