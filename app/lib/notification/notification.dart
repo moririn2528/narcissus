@@ -5,9 +5,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import '../location/location.dart';
 import '../handle_api/handle.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:isolate';
 import 'package:flutter_isolate/flutter_isolate.dart';
 
 @pragma('vm:entry-point')

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:developer';
 
 // 画像のパスのリスト(imagePaths)を渡すと垂直に並べて一覧で表示するWidget
 class AssetPicturesListView extends StatelessWidget {
