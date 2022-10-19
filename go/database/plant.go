@@ -4,6 +4,7 @@ import (
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -134,19 +135,8 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 		return false, id, nil
 	}
 
-	// 存在しなければ新IDを求める
-	newId, err := GetNewPlantID()
-	if err != nil {
-		return true, -1, errors.ErrorWrap(err)
-	}
-	if plant.Id > 0 { // plant.Idが指定されていればそれにする(被ったらエラー吐くけど)
-		newId = plant.Id
-	}
-
 	// 新しいデータとして挿入する
-	plant.Id = newId
-	query := "INSERT INTO plant(id, name, hash, rarity) VALUES("
-	query += strconv.Itoa(newId) + ","
+	query := "INSERT INTO plant(name, hash, rarity) VALUES("
 	query += strconv.Quote(plant.Name) + ","
 	query += strconv.Quote(plant.Hash) + ","
 	query += strconv.Itoa(0)
@@ -156,23 +146,17 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
 	}
-	return true, newId, nil
-}
 
-// 存在しない新しいIDを返す
-// 返り値: (新ID, error)
-func GetNewPlantID() (int, error) {
+	// 挿入されたデータのidを取ってくる
 	var plants []usecase.Plant
-	query := "SELECT max(id) AS id, name, hash FROM plant"
-	err := db.Select(&plants, query)
+	query = "SELECT id, name, hash FROM plant WHERE id = last_insert_rowid()"
+	err = db.Select(&plants, query)
 	if err != nil {
-		return -1, errors.ErrorWrap(err)
+		return true, -1, errors.ErrorWrap(err)
 	}
-	newId := 1
-	if len(plants) != 0 {
-		newId = plants[0].Id + 1
-	}
-	return newId, nil
+	newId := plants[0].Id
+
+	return true, newId, nil
 }
 
 // 名前から植物が存在するかをチェックする
@@ -204,29 +188,28 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 	query_main := ""
 
 	// 各タグ名に一致するタグ情報を取ってくる
-	query_main += "SELECT * FROM tag WHERE "
-	for i, t := range tagNames {
-		query_main += " name = " + strconv.Quote(t)
-		if i < len(tagNames)-1 {
-			query_main += " OR "
-		}
+	var quote_names []string
+	for _, t := range tagNames {
+		quote_names = append(quote_names, strconv.Quote(t))
 	}
+	query_main += "SELECT * FROM tag WHERE name IN (" + strings.Join(quote_names, ",") + ")"
+
 	err := db.Select(&tags, query_main)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
 
 	// 植物idとタグidの結びつけを登録
+	var values []string
 	query_main = "INSERT INTO plant_tag(plant_id, tag_id) VALUES "
-	for i, t := range tags {
-		query_main += "("
-		query_main += strconv.Itoa(id) + ","
-		query_main += strconv.Itoa(t.Id)
-		query_main += ")"
-		if i < len(tags)-1 {
-			query_main += ","
-		}
+	for _, t := range tags {
+		value := "("
+		value += strconv.Itoa(id) + ","
+		value += strconv.Itoa(t.Id)
+		value += ")"
+		values = append(values, value)
 	}
+	query_main += strings.Join(values, ",")
 	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
 
 	_, err = db.Exec(query_main)

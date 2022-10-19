@@ -9,7 +9,7 @@ import (
 type DatabaseUploadPost struct {
 }
 
-func (*DatabaseUploadPost) InsertUploadPost(uploadPost usecase.UploadPost) error {
+func (*DatabaseUploadPost) InsertUploadPost(req usecase.UploadPostRequest, uploadPost usecase.UploadPost) (usecase.UploadPostResponse, error) {
 
 	query := "INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES ("
 	query += strconv.Itoa(uploadPost.PlantId) + ","
@@ -21,7 +21,7 @@ func (*DatabaseUploadPost) InsertUploadPost(uploadPost usecase.UploadPost) error
 	_, err := db.Exec(query)
 
 	if err != nil {
-		return errors.ErrorWrap(err)
+		return usecase.UploadPostResponse{}, errors.ErrorWrap(err)
 	}
-	return nil
+	return usecase.UploadPostResponse{}, nil
 }

@@ -16,7 +16,7 @@ type DatabaseNear interface {
 }
 
 type DatabaseUploadPost interface {
-	InsertUploadPost(UploadPost) error
+	InsertUploadPost(UploadPostRequest, UploadPost) (UploadPostResponse, error)
 }
 
 var (
