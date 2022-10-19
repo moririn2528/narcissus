@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             TestPage(),
             SearchPage(),
+
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
