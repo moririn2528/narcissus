@@ -7,8 +7,63 @@ import '../location/location.dart';
 import '../handle_api/handle.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:isolate';
+import 'package:flutter_isolate/flutter_isolate.dart';
+
+@pragma('vm:entry-point')
+void timer_notification(int value) {
+  Position lastPosition = Position(
+      latitude: 0,
+      longitude: 0,
+      altitude: 0,
+      accuracy: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),
+      isMocked: false);
+  Position currentPosition = Position(
+      latitude: 0,
+      longitude: 0,
+      altitude: 0,
+      accuracy: 0,
+      heading: 0,
+      speed: 0,
+      speedAccuracy: 0,
+      timestamp: DateTime.now(),
+      isMocked: false);
+  Timer.periodic(Duration(seconds: 6), (Timer timer) {
+    // Geolocator.getCurrentPosition().then((value) {
+    // currentPosition = value;
+    if (distanceBetween(lastPosition, currentPosition) >= 0) {
+      // notifyPlant(value);
+      notifyNow();
+    }
+    lastPosition = currentPosition;
+    // });
+  });
+}
 
 void init_notification() async {
+  Future<LocationPermission> getPermission() async {
+    late var permission;
+    permission = await Geolocator.checkPermission();
+    return permission;
+  }
+
+// Future<void> onStart(ServiceInstance service) async {
+//   DartPluginRegistrant.ensureInitialized();
+//   call_notification();
+// }
+  void call_notification() async {
+    getPermission().then((value) {
+      if (value == LocationPermission.always ||
+          value == LocationPermission.whileInUse) {
+        FlutterIsolate.spawn(timer_notification, 1);
+      }
+    });
+  }
+
   var notifiation_permission =
       await Permission.notification.request().then((value) async {
     if (value == PermissionStatus.granted) {
@@ -27,67 +82,27 @@ void init_notification() async {
               importance: NotificationImportance.High)
         ],
       );
-      final service = FlutterBackgroundService();
-      await service.configure(
-        androidConfiguration: AndroidConfiguration(
-          onStart: onStart,
-          autoStart: true,
-          isForegroundMode: true,
-        ),
-        iosConfiguration: IosConfiguration(),
-      );
+      // final service = FlutterBackgroundService();
+      // await service.configure(
+      //   androidConfiguration: AndroidConfiguration(
+      //     onStart: onStart,
+      //     autoStart: true,
+      //     isForegroundMode: true,
+      //   ),
+      //   iosConfiguration: IosConfiguration(),
+      // );
+      call_notification();
+      AwesomeNotifications().createNotification(
+          content: NotificationContent(
+        id: 12345,
+        channelKey: 'image',
+        title: 'wow',
+        body: 'wow',
+        largeIcon: 'https://www.fluttercampus.com/img/logo_small.webp',
+        notificationLayout: NotificationLayout.BigPicture,
+      ));
     } else {
-      return false;
-    }
-  });
-}
-
-late LocationPermission permission;
-
-Position lastPosition = Position(
-    latitude: 0,
-    longitude: 0,
-    altitude: 0,
-    accuracy: 0,
-    heading: 0,
-    speed: 0,
-    speedAccuracy: 0,
-    timestamp: DateTime.now(),
-    isMocked: false);
-Position currentPosition = Position(
-    latitude: 0,
-    longitude: 0,
-    altitude: 0,
-    accuracy: 0,
-    heading: 0,
-    speed: 0,
-    speedAccuracy: 0,
-    timestamp: DateTime.now(),
-    isMocked: false);
-
-Future<LocationPermission> getPermission() async {
-  permission = await Geolocator.checkPermission();
-  return permission;
-}
-
-Future<void> onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-  call_notification();
-}
-
-void call_notification() async {
-  getPermission().then((value) {
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
-      Timer.periodic(Duration(seconds: 600), (Timer timer) {
-        Geolocator.getCurrentPosition().then((value) {
-          currentPosition = value;
-          if (distanceBetween(lastPosition, currentPosition) >= 100) {
-            notifyPlant(currentPosition);
-          }
-          lastPosition = currentPosition;
-        });
-      });
+      print('通知の許可がありません');
     }
   });
 }
@@ -131,7 +146,7 @@ Future<void> notifyPlant(Position? position) async {
           id: 12345,
           channelKey: 'image',
           title: '近くに植物があります',
-          body: '近くに${data[0]['name']}があります',
+          body: '近くに${data[0]['id']}があります',
           largeIcon: 'https://www.fluttercampus.com/img/logo_small.webp',
           notificationLayout: NotificationLayout.BigPicture,
         ));
