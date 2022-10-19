@@ -136,13 +136,8 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 	}
 
 	// 新しいデータとして挿入する
-	query := "INSERT INTO plant(name, hash, rarity) VALUES("
-	query += strconv.Quote(plant.Name) + ","
-	query += strconv.Quote(plant.Hash) + ","
-	query += strconv.Itoa(0)
-	query += ")"
-
-	_, err = db.Exec(query)
+	query := "INSERT INTO plant(name, hash, rarity) VALUES (:name,:hash,0)"
+	_, err = db.NamedExec(query, &plant)
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
 	}
@@ -200,19 +195,19 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 	}
 
 	// 植物idとタグidの結びつけを登録
-	var values []string
-	query_main = "INSERT INTO plant_tag(plant_id, tag_id) VALUES "
-	for _, t := range tags {
-		value := "("
-		value += strconv.Itoa(id) + ","
-		value += strconv.Itoa(t.Id)
-		value += ")"
-		values = append(values, value)
+	type TagAndPlantID struct {
+		PlantId int `db:"plant_id"`
+		TagId   int `db:"tag_id"`
 	}
-	query_main += strings.Join(values, ",")
+	var values []TagAndPlantID
+	query_main = "INSERT INTO plant_tag(plant_id, tag_id) VALUES (:plant_id, :tag_id)"
 	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
-
-	_, err = db.Exec(query_main)
+	for _, t := range tags {
+		values = append(values, TagAndPlantID{
+			PlantId: id,
+			TagId:   t.Id})
+	}
+	_, err = db.NamedExec(query_main, values)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
