@@ -25,3 +25,23 @@ func SearchPlant(necessary_tags []int, optional_tags []int) ([]Plant, error) {
 	}
 	return plants, nil
 }
+
+// Plant型(idは適当で良い)を渡すと新たに追加してくれる
+// 返り値は (存在していたか, 登録後のid, error)
+func InsertPlant(plant Plant) (bool, int, error) {
+	isNew, newId, err := DbPlant.InsertPlant(plant)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	return isNew, newId, nil
+}
+
+// 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
+// isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
+func SetTagsToPlant(id int, tags []string) error {
+	err := DbPlant.SetTagsToPlant(id, tags)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+	return nil
+}

@@ -15,7 +15,7 @@ func (*DatabaseNear) ListNear(latitude float64, longitude float64, length float6
 
 	// SQLのクエリ
 	var query_main string = ""
-	var subquery_post string = ""
+	var subquery_uploadpost string = ""
 	var subquery_plant string = ""
 	var proposition string = ""
 	var prop_latitude string = ""
@@ -42,9 +42,9 @@ func (*DatabaseNear) ListNear(latitude float64, longitude float64, length float6
 	proposition += prop_latitude + " AND " + prop_longitude
 
 	// クエリの投稿情報の部分
-	subquery_post += "SELECT plant_id AS id, hash, latitude, longitude "
-	subquery_post += "FROM post WHERE " + proposition
-	subquery_post = "(" + subquery_post + ")"
+	subquery_uploadpost += "SELECT plant_id AS id, hash, latitude, longitude "
+	subquery_uploadpost += "FROM upload_post WHERE " + proposition
+	subquery_uploadpost = "(" + subquery_uploadpost + ")"
 
 	// クエリの植物情報の部分
 	subquery_plant += "SELECT id, name FROM plant"
@@ -52,7 +52,7 @@ func (*DatabaseNear) ListNear(latitude float64, longitude float64, length float6
 
 	// 最終的なクエリ
 	query_main += "SELECT id, name, hash, latitude, longitude "
-	query_main += "FROM " + subquery_post + " NATURAL JOIN " + subquery_plant
+	query_main += "FROM " + subquery_uploadpost + " NATURAL JOIN " + subquery_plant
 	err := db.Select(&nears, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
