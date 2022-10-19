@@ -137,21 +137,16 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 
 	// 新しいデータとして挿入する
 	query := "INSERT INTO plant(name, hash, rarity) VALUES (:name,:hash,0)"
-	_, err = db.NamedExec(query, &plant)
+	res, err := db.NamedExec(query, &plant)
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+	newId, err := res.LastInsertId()
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
 	}
 
-	// 挿入されたデータのidを取ってくる
-	var plants []usecase.Plant
-	query = "SELECT id, name, hash FROM plant WHERE id = last_insert_rowid()"
-	err = db.Select(&plants, query)
-	if err != nil {
-		return true, -1, errors.ErrorWrap(err)
-	}
-	newId := plants[0].Id
-
-	return true, newId, nil
+	return true, int(newId), nil
 }
 
 // 名前から植物が存在するかをチェックする

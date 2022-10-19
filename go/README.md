@@ -49,7 +49,7 @@ flutterからgcsに画像を直でアップロードすることになったの�
 - latitude 緯度 float64
 - longitude 経度 float64
 - image 画像データ(base64) string
-- {name:タグ名}のリスト 植物のタグ(空でも良い　初の植物を登録するときに便利？)
+- tags タグ名(string)のリスト 植物のタグ(nullでも良い　初の植物を登録するときに便利？)
 
 ### 戻り値
 - is_new_plant 植物データを新しく登録したかどうか(bool)
