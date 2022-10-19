@@ -3,68 +3,53 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const SearchPage());
 }
 
-// メイン関数として実行するための外枠
-class SearchPage extends StatelessWidget {
+// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
+class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return Builder(
-        builder: (context) => MaterialApp(
-              title: 'Flutter Demo',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Search'),
-                ),
-                body: const SearchGroup(),
-              ),
-            ));
-  }
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
-class SearchGroup extends StatefulWidget {
-  const SearchGroup({super.key});
-
-  @override
-  State<SearchGroup> createState() => _SearchGroupState();
-}
-
-class _SearchGroupState extends State<SearchGroup> {
+class _SearchPageState extends State<SearchPage> {
   final SearchProvider searchProvider = SearchProvider();
 
   @override
   void initState() {
     super.initState();
-    // searchProvider.fetchtags();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SearchProvider>(
-            create: (context) => SearchProvider(),
-          ),
-        ],
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Flexible(child: SearchBar(), flex: 1),
-            Expanded(
-                child: Suggestions(), flex: SearchProvider().isopened() * 2),
-            Flexible(child: Keep(), flex: 1),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search'),
+      ),
+      body: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<SearchProvider>(
+              create: (context) => SearchProvider(),
+            ),
           ],
-        ));
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Flexible(child: SearchBar(), flex: 1),
+              LimitedBox(
+                child: Suggestions(),
+                maxHeight: 200,
+              ),
+              Flexible(child: Keep(), flex: 1),
+            ],
+          )),
+    );
   }
 }
 
