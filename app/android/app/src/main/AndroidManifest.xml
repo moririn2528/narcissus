@@ -11,7 +11,8 @@
         android:requestLegacyExternalStorage="true">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyBlXYCPhWAt9S0zXfCgrLlhTMr1HF7x_BU"/>
+               android:value="${MAPS_API_KEY}"/>
+
         <activity
             android:showWhenLocked="true"
             android:turnScreenOn="true"
