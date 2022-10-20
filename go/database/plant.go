@@ -4,6 +4,7 @@ import (
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -117,4 +118,94 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 		return nil, errors.ErrorWrap(err)
 	}
 	return plants, nil
+}
+
+// 植物データを挿入する
+// 返り値は, (挿入できたか, 新ID, error)
+func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
+
+	// nameが一致する植物が存在するかチェック
+	isExist, id, err := IsPlantExist(plant.Name)
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+
+	// 存在する場合はそのidを返す
+	if isExist {
+		return false, id, nil
+	}
+
+	// 新しいデータとして挿入する
+	query := "INSERT INTO plant(name, hash, rarity) VALUES (:name,:hash,0)"
+	res, err := db.NamedExec(query, &plant)
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+	newId, err := res.LastInsertId()
+	if err != nil {
+		return true, -1, errors.ErrorWrap(err)
+	}
+
+	return true, int(newId), nil
+}
+
+// 名前から植物が存在するかをチェックする
+// 返り値: (存在するか, そのid, error)
+func IsPlantExist(name string) (bool, int, error) {
+	var plants []usecase.Plant
+	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
+	err := db.Select(&plants, query)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+
+	isExist := len(plants) > 0
+	plantId := -1
+	if isExist {
+		plantId = plants[0].Id
+	}
+	return isExist, plantId, nil
+}
+
+// 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
+// isAddTagがtrueなら、その植物に無い新しいタグも追加する
+func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
+	if len(tagNames) == 0 {
+		return nil
+	}
+
+	var tags []usecase.Tag
+	query_main := ""
+
+	// 各タグ名に一致するタグ情報を取ってくる
+	var quote_names []string
+	for _, t := range tagNames {
+		quote_names = append(quote_names, strconv.Quote(t))
+	}
+	query_main += "SELECT * FROM tag WHERE name IN (" + strings.Join(quote_names, ",") + ")"
+
+	err := db.Select(&tags, query_main)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+
+	// 植物idとタグidの結びつけを登録
+	type TagAndPlantID struct {
+		PlantId int `db:"plant_id"`
+		TagId   int `db:"tag_id"`
+	}
+	var values []TagAndPlantID
+	query_main = "INSERT INTO plant_tag(plant_id, tag_id) VALUES (:plant_id, :tag_id)"
+	query_main += " ON CONFLICT(plant_id, tag_id) DO NOTHING"
+	for _, t := range tags {
+		values = append(values, TagAndPlantID{
+			PlantId: id,
+			TagId:   t.Id})
+	}
+	_, err = db.NamedExec(query_main, values)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+
+	return nil
 }

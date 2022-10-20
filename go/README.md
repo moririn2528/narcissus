@@ -20,8 +20,8 @@
 
 ## /near
 ### パラメータ
-(latitude,longitude)を中心としたlengthメートル四方にある投稿情報を距離が近い順に返す
-lengthを指定しない場合はデフォルト値(今は1000メートル四方)になる
+(latitude,longitude)を中心としたlengthメートル四方にある投稿情報を距離が近い順に返す。  
+lengthを指定しない場合はデフォルト値(今は1000メートル四方)になる。
 - latitude (float64)
 - longitude (float64)
 - length (float64)
@@ -37,3 +37,19 @@ IsEmptyは、結果のリストが空なら1、そうでないなら0
 - latitude (投稿時の緯度, float64)
 - longitude (投稿時の経度, float64)
 - distance (その場所までの距離, float64)
+
+## /post/upload
+POST送信でJSONを送ると投稿内容をデータベース(upload_postテーブル)に保存できる。  
+その植物のデータがなければ新たに登録する。  
+その際に複数のtagをリクエストとして送信すると、植物とタグの関連のデータを追加する。タグが存在しなければタグを追加する。  
+
+### JSON
+flutterからgcsに画像を直でアップロードすることになったのでimageの部分はurlまたはhashに変えよう(そのうち)
+- name 植物の名前
+- latitude 緯度 float64
+- longitude 経度 float64
+- image 画像データ(base64) string
+- tags タグ名(string)のリスト 植物のタグ(nullでも良い　初の植物を登録するときに便利？)
+
+### 戻り値
+- is_new_plant 植物データを新しく登録したかどうか(bool)

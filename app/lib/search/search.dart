@@ -1,52 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const SearchPage());
 }
 
-// メイン関数として実行するための外枠
-class SearchPage extends StatelessWidget {
+// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
+class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return Builder(
-        builder: (context) => MaterialApp(
-              title: 'Flutter Demo',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Search'),
-                ),
-                body: const SearchGroup(),
-              ),
-            ));
-  }
+  State<SearchPage> createState() => _SearchPageState();
 }
 
-// 検索機能にかかわる部分,検索バー、タグの提案、タグの保持からなる
-class SearchGroup extends StatefulWidget {
-  const SearchGroup({super.key});
-
-  @override
-  State<SearchGroup> createState() => _SearchGroupState();
-}
-
-class _SearchGroupState extends State<SearchGroup> {
-  final SearchProvider searchProvider = SearchProvider();
-
+class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // searchProvider.fetchtags();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final SearchProvider searchProvider = SearchProvider();
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Search'),
+        ),
+        body: SearchGroup(
+          searchProvider: searchProvider,
+        ));
+  }
+}
+
+class SearchGroup extends StatelessWidget {
+  final SearchProvider searchProvider;
+  const SearchGroup({super.key, required this.searchProvider});
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +51,10 @@ class _SearchGroupState extends State<SearchGroup> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Flexible(child: SearchBar(), flex: 1),
-            Expanded(
-                child: Suggestions(), flex: SearchProvider().isopened() * 2),
+            LimitedBox(
+              child: Suggestions(),
+              maxHeight: 200,
+            ),
             Flexible(child: Keep(), flex: 1),
           ],
         ));
@@ -125,15 +118,15 @@ class Suggestions extends StatelessWidget {
         Provider.of<SearchProvider>(context).fieldController;
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: searchProvider.suggested_tags!.length,
+      itemCount: searchProvider.suggested_tags.length,
       itemBuilder: (context, index) {
         // 各タグの表示
         return Card(
             child: ListTile(
-          title: Text(searchProvider.suggested_tags![index]),
+          title: Text(searchProvider.suggested_tags[index]),
           // タグをタップした際の挙動
           onTap: () {
-            searchProvider.addtag(searchProvider.suggested_tags![index]);
+            searchProvider.addtag(searchProvider.suggested_tags[index]);
             searchProvider.suggested_tags = [];
             fieldController.clear();
           },
@@ -154,7 +147,7 @@ class Keep extends StatelessWidget {
       height: 50.0,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: searchProvider.keep_tags!.length,
+        itemCount: searchProvider.keep_tags.length,
         itemBuilder: (context, index) {
           // 　各タグの表示
           return Card(
@@ -169,7 +162,7 @@ class Keep extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(searchProvider.keep_tags![index]),
+                      Text(searchProvider.keep_tags[index]),
                       IconButton(
                         icon: Icon(
                           Icons.close,
@@ -178,7 +171,7 @@ class Keep extends StatelessWidget {
                         // 削除ボタンを押した際の挙動
                         onPressed: () {
                           searchProvider
-                              .removetag(searchProvider.keep_tags![index]);
+                              .removetag(searchProvider.keep_tags[index]);
                         },
                       ),
                     ],

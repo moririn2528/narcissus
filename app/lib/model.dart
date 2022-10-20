@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:io';
+
 class Test {
   final int id;
   final String name;
@@ -11,5 +14,53 @@ class Test {
       name: json['name'],
       hash: json['hash'],
     );
+  }
+}
+
+class UploadPost {
+  final String name;
+  final String url;
+  final double latitude;
+  final double longitude;
+
+  UploadPost(
+      {required this.name,
+      required this.url,
+      required this.latitude,
+      required this.longitude});
+
+  factory UploadPost.fromJson(Map<String, dynamic> json) {
+    return UploadPost(
+        name: json['name'],
+        url: json['url'],
+        latitude: json['latitude'],
+        longitude: json['longitude']);
+  }
+}
+
+class UploadInfo {
+  String name;
+  final String hash;
+  final File image;
+  final double latitude;
+  final double longitude;
+  List<String> tags;
+
+  UploadInfo(
+      {required this.name,
+      required this.hash,
+      required this.image,
+      required this.latitude,
+      required this.longitude,
+      required this.tags});
+
+  factory UploadInfo.fromJson(Map<String, dynamic> json) {
+    return UploadInfo(
+        name: json['name'],
+        hash: json['url'],
+        image: json['image'],
+        latitude: json['latitude'],
+        longitude: json['longitude'],
+        tags: json['tags']);
   }
 }
