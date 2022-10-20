@@ -16,10 +16,12 @@ import (
 
 // req.FormValue is used to get request parameters from url
 // hash
-func plantIdentify(w http.ResponseWriter, req *http.Request) error {
+func plantIdentify(w http.ResponseWriter, req *http.Request, img_path string) error {
 	var err error
 	// plant_identity, err := usecase.PlantIdentify()
 	var plant_identity string
+
+	// URLをusecase/plant_identify.go > GetPlantIdentify()に入力
 
 	// ResponseWriterで値を返却
 	err = ResponseJson(w, plant_identity)
@@ -32,9 +34,11 @@ func plantIdentify(w http.ResponseWriter, req *http.Request) error {
 
 func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	var err error
+	// 画像ファイルをダウンロードして、保存先のpathを取得
+
 	switch req.Method {
 	case "GET":
-		err = plantIdentify(w, req, file_url)
+		err = plantIdentify(w, req, img_path)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return

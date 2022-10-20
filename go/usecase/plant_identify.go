@@ -17,9 +17,9 @@ import (
 // }
 
 // URLから植物名（日本語）のリストに変換
-func GetPlantIdentify(img_url string) ([]string, error) {
+func GetPlantIdentify(img_path string) ([]string, error) {
 	// 英語で植物の情報をwebからとってくる
-	en_plant_names, err := listPlantName(img_url)
+	en_plant_names, err := listPlantName(img_path)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
@@ -30,7 +30,7 @@ func GetPlantIdentify(img_url string) ([]string, error) {
 }
 
 // 画像から植物名（英語）のリストに変換
-func listPlantName(img_url string) ([]string, error) {
+func listPlantName(img_path string) ([]string, error) {
 	// 返り値
 	var en_names []string
 	// これなんだ？良く分からんけど呪文
@@ -43,7 +43,7 @@ func listPlantName(img_url string) ([]string, error) {
 	}
 
 	// 画像ファイルを開きましょう
-	f, err := os.Open(img_url)
+	f, err := os.Open(img_path)
 	if err != nil {
 		return nil, err
 	}
