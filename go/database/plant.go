@@ -16,8 +16,8 @@ var (
 type DatabasePlant struct {
 }
 
-func (*DatabasePlant) ListPlant() ([]usecase.Plant, error) {
-	var plants []usecase.Plant
+func (*DatabasePlant) ListPlant() ([]usecase.PlantHash, error) {
+	var plants []usecase.PlantHash
 
 	query_main := AddHashToQuery("plant")
 	err := db.Select(&plants, query_main)
@@ -29,8 +29,8 @@ func (*DatabasePlant) ListPlant() ([]usecase.Plant, error) {
 
 // タグをもとに植物を検索
 // tagはtag_idのsliceが渡されることを想定している
-func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]usecase.Plant, error) {
-	var plants []usecase.Plant
+func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]usecase.PlantHash, error) {
+	var plants []usecase.PlantHash
 
 	// sql1:必須タグプラス、任意タグをどれか一つ以上含む植物：必須タグ and (任意タグ or 任意タグ or ................)
 	// sql2:必須タグだけ含み、任意タグを含まない植物：必須タグ and (not 任意タグ and not 任意タグ and ................)

@@ -1,8 +1,8 @@
 package usecase
 
 type DatabasePlant interface {
-	ListPlant() ([]Plant, error)
-	SearchPlant([]int, []int) ([]Plant, error)
+	ListPlant() ([]PlantHash, error)
+	SearchPlant([]int, []int) ([]PlantHash, error)
 	InsertPlant(plant Plant) (bool, int, error)
 	SetTagsToPlant(int, []string) error
 }

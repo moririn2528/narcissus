@@ -20,6 +20,19 @@ func listPlant(w http.ResponseWriter, req *http.Request) error {
 	// 構造体の使い方：https://golang.hateblo.jp/entry/golang-how-to-use-struct
 	// スライスの使い方：https://qiita.com/k-penguin-sato/items/daad9986d6c42bdcde90
 
+	type PlantUrl struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+		Url  string `json:"url"`
+	}
+	var plants_url []PlantUrl
+
+	for _, v := range plants {
+		//TODO 画像の保存先とか拡張子が決まったら変更する
+		url := "http://localhost:8080/figure/" + v.Hash + ".png"
+		plants_url = append(plants_url, PlantUrl{Id: v.Id, Name: v.Name, Url: url})
+	}
+
 	// hash -> url 変換済みplantsの型
 	err = ResponseJson(w, plants)
 	if err != nil {
