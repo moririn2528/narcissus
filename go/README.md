@@ -44,11 +44,12 @@ POST送信でJSONを送ると投稿内容をデータベース(upload_postテー
 その際に複数のtagをリクエストとして送信すると、植物とタグの関連のデータを追加する。タグが存在しなければタグを追加する。  
 
 ### POST送信のJSON
-- name 植物の名前
+tagsは無くても良いけど一応残しとく
+- plant_id 植物のID
 - latitude 緯度 float64
 - longitude 経度 float64
 - hash 画像のhash string
-- tags タグ名(string)のリスト 植物のタグ(nullでも良い　初の植物を登録するときに便利？)
+- tags タグ名(string)のリスト 植物のタグ(植物にタグを登録できる)
 
 ### 戻り値
-- is_new_plant 植物データを新しく登録したかどうか(bool)
+なし

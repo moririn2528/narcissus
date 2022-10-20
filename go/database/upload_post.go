@@ -8,13 +8,12 @@ import (
 type DatabaseUploadPost struct {
 }
 
-func (*DatabaseUploadPost) InsertUploadPost(tags []string, uploadPost usecase.UploadPost) (usecase.UploadPostResponse, error) {
-
+func (*DatabaseUploadPost) InsertUploadPost(uploadPost usecase.UploadPost) error {
+	// 投稿をDBに挿入
 	query := "INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES (:plant_id,:latitude,:longitude,:hash)"
 	_, err := db.NamedExec(query, &uploadPost)
-
 	if err != nil {
-		return usecase.UploadPostResponse{}, errors.ErrorWrap(err)
+		return errors.ErrorWrap(err)
 	}
-	return usecase.UploadPostResponse{}, nil
+	return nil
 }
