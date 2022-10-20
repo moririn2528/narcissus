@@ -137,7 +137,7 @@ Future<Widget> getImageFromLibrary() async {
     var hash;
     try {
       await ImagePicker()
-          .pickImage(source: ImageSource.camera)
+          .pickImage(source: ImageSource.gallery)
           .then(
               // 画像をアップロード
               (value) => value!.readAsBytes().then((value) async {
@@ -187,16 +187,7 @@ class UploadForm extends StatelessWidget {
           Center(
             child: Row(
               children: [
-                Text("植物名:"),
-                TextFormField(
-                  initialValue: info.name,
-                  decoration: InputDecoration(
-                    hintText: "植物名を入力してください",
-                  ),
-                  onChanged: (text) {
-                    info.name = text;
-                  },
-                ),
+                Text("植物名:${info.name}"),
               ],
             ),
           ),

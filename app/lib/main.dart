@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'search/search.dart';
 import 'test/test.dart';
+import 'upload/upload.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env").then((value) {
     WidgetsFlutterBinding.ensureInitialized();
-    init_notification();
     runApp(const MyApp());
   });
 }
@@ -50,6 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
         icon: Icon(Icons.search),
         label: 'Search',
       ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.add),
+        label: 'Upload',
+      ),
     ];
   }
 
@@ -63,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             TestPage(),
             SearchPage(),
+            UploadPage(),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(

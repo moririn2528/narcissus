@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../model.dart';
-import 'package:gcloud/storage.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 // TODO
 Future<void> upload_post(UploadInfo info) async {

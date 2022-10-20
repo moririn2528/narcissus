@@ -7,9 +7,8 @@ import 'package:geolocator/geolocator.dart';
 Future<List<dynamic>> fetchTest() async {
   late List data = [];
   try {
-    final response = await http.get(
-        Uri.parse("http://${dotenv.get('API_IP')}/api/plant"),
-        headers: {"Content-Type": "application/json"});
+    final response =
+        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
     if (response.statusCode == 200) {
       data = json.decode(response.body);
     } else {
