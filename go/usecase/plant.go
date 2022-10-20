@@ -5,13 +5,17 @@ import "narcissus/errors"
 type Plant struct {
 	Id   int    `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
-	Hash string `json:"hash" db:"hash"`
+	Url  string `json:"url" db:"hash`
 }
 
 func ListPlant() ([]Plant, error) {
 	plants, err := DbPlant.ListPlant()
+	//TODO 画像の保存先とか拡張子が決まったら変更する
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
+	}
+	for i, v := range plants {
+		plants[i].Url = "http://localhost:8080/figure/" + v.Url + ".png"
 	}
 	return plants, nil
 }

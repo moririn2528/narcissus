@@ -18,7 +18,9 @@ type DatabasePlant struct {
 
 func (*DatabasePlant) ListPlant() ([]usecase.Plant, error) {
 	var plants []usecase.Plant
-	err := db.Select(&plants, "SELECT id, name, hash FROM plant")
+
+	query_main := AddHashToQuery("plant")
+	err := db.Select(&plants, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
@@ -74,7 +76,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
+		plant_search_sql = "(SELECT id, name" +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" +
 			"WHERE tag_id in " + plant_with_optional + ")" +
 			"UNION" +
@@ -91,7 +93,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
+		plant_search_sql = "(SELECT id, name" +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
 
 	} else if len(necessary_tags) == 0 && len(optional_tags) > 0 {
@@ -105,19 +107,54 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
+		plant_search_sql = "(SELECT id, name" +
 			"FROM plant, plant_tag" +
 			"WHERE tag_id in " + plant_with_optional + ")"
 
 	} else {
-		plant_search_sql = "SELECT id, name, hash FROM plant"
+		plant_search_sql = "SELECT id, name FROM plant"
 	}
 
+	plant_search_sql = AddHashToQuery(plant_search_sql)
 	err := db.Select(&plants, plant_search_sql)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
 	return plants, nil
+}
+
+// plantのカラム(id,name)が返ってくるクエリにhashを付け足す関数
+// hashはその植物IDに関する投稿のうち、最も新しいもののhash
+func AddHashToQuery(query string) string {
+	var query_main string = ""
+	var subquery_Id_Hash string = ""
+	var subquery_Id_NewDate string = ""
+	var subquery_MaxHash string = ""
+
+	query = "(" + query + ")"
+	// 植物IDと作成日ごとにhashの最大値を取得
+	// 作成日が被ったときに複数返ってくるのを防ぐためのもの
+	subquery_MaxHash += "SELECT plant_id, MAX(hash) AS hash, created_date" + " "
+	subquery_MaxHash += "FROM upload_post" + " "
+	subquery_MaxHash += "GROUP BY (plant_id, created_date)"
+	subquery_MaxHash = "(" + subquery_MaxHash + ")"
+
+	// 植物IDごとの最も新しい投稿日時を求める
+	subquery_Id_NewDate += "SELECT plant_id, MAX(created_date) AS created_date" + " "
+	subquery_Id_NewDate += "FROM upload_post" + " "
+	subquery_Id_NewDate += "GROUP BY (plant_id)"
+	subquery_Id_NewDate = "(" + subquery_Id_NewDate + ")"
+
+	// 植物IDごとのhashを求める
+	subquery_Id_Hash += "SELECT plant_id AS id, hash" + " "
+	subquery_Id_Hash += "FROM " + subquery_MaxHash + " NATURAL JOIN " + subquery_Id_NewDate
+	subquery_Id_Hash = "(" + subquery_Id_Hash + ")"
+
+	// 植物名をくっつける
+	query_main += "SELECT id, name, hash" + " "
+	query_main += "FROM " + query + " NATURAL JOIN " + subquery_Id_Hash
+
+	return query_main
 }
 
 // 植物データを挿入する
@@ -136,7 +173,7 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 	}
 
 	// 新しいデータとして挿入する
-	query := "INSERT INTO plant(name, hash, rarity) VALUES (:name,:hash,0)"
+	query := "INSERT INTO plant(name, rarity) VALUES (:name,0)"
 	res, err := db.NamedExec(query, &plant)
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)

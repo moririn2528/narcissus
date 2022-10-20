@@ -12,28 +12,16 @@ func listPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
 	// DBから植物情報（plants）取得
 	plants, err := usecase.ListPlant()
-
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
 	// plantsは送信時にhashをurlに変換
 	// メモ
 	// 構造体の使い方：https://golang.hateblo.jp/entry/golang-how-to-use-struct
 	// スライスの使い方：https://qiita.com/k-penguin-sato/items/daad9986d6c42bdcde90
 
 	// hash -> url 変換済みplantsの型
-	type PlantUrl struct {
-		Id   int    `json:"id"`
-		Name string `json:"name"`
-		Url  string `json:"url"`
-	}
-
-	var url_plants []PlantUrl
-	for _, v := range plants {
-		url_plants = append(url_plants, PlantUrl{Id: v.Id, Name: v.Name, Url: "http://localhost:8080/figure/" + v.Hash + ".png"})
-	}
-	if err != nil {
-		return errors.ErrorWrap(err)
-	}
-
-	err = ResponseJson(w, url_plants)
+	err = ResponseJson(w, plants)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
