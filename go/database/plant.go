@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
@@ -57,65 +56,64 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	var plant_with_optional string = ""
 
 	// 最終的に実行したSQLコード
-	var plant_search_sql string = "["
+	var plant_search_sql string = ""
 
 	if len(necessary_tags) > 0 && len(optional_tags) > 0 {
 		// 任意タグも必須タグも入力された場合
 		for i, v := range necessary_tags {
 			if len(necessary_tags) == i+1 {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
 			} else {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
 			}
 		}
 
 		for i, v := range optional_tags {
 			if len(optional_tags) == i+1 {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\"]"
+				plant_with_optional += strconv.Itoa(v)
 			} else {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\", "
+				plant_with_optional += strconv.Itoa(v) + ","
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" +
-			"WHERE tag_id in " + plant_with_optional + ")" +
-			"UNION" +
-			"(SELECT id, name" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
+		plant_search_sql = "SELECT DISTINCT id, name " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + ")) " +
+			"WHERE tag_id IN " + "(" + plant_with_optional + ")" +
+			" UNION " +
+			"SELECT DISTINCT id, name " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) > 0 && len(optional_tags) == 0 {
 		// 必須タグのみの入力
 		for i, v := range necessary_tags {
 			if len(necessary_tags) == i+1 {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
 			} else {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
+		plant_search_sql = "SELECT DISTINCT id, name " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) == 0 && len(optional_tags) > 0 {
 		// 任意タグだけの入力
 
 		for i, v := range optional_tags {
 			if len(optional_tags) == i+1 {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\"]"
+				plant_with_optional += strconv.Itoa(v)
 			} else {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\", "
+				plant_with_optional += strconv.Itoa(v) + ","
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name" +
-			"FROM plant, plant_tag" +
-			"WHERE tag_id in " + plant_with_optional + ")"
+		plant_search_sql = "SELECT DISTINCT id, name " +
+			"FROM plant NATURAL JOIN (SELECT plant_id AS id, tag_id FROM plant_tag) " +
+			"WHERE tag_id in (" + plant_with_optional + ")"
 
 	} else {
-		plant_search_sql = "SELECT id, name FROM plant"
+		plant_search_sql = "SELECT DISTINCT id, name FROM plant"
 	}
-	log.Print(plant_search_sql)
 	plant_search_sql = AddHashToQuery(plant_search_sql)
 	err := db.Select(&plants, plant_search_sql)
 	if err != nil {
@@ -152,7 +150,7 @@ func AddHashToQuery(query string) string {
 	subquery_Id_Hash = "(" + subquery_Id_Hash + ")"
 
 	// hashをくっつける
-	query_main += "SELECT *" + " "
+	query_main += "SELECT DISTINCT *" + " "
 	query_main += "FROM " + query + " NATURAL JOIN " + subquery_Id_Hash
 
 	return query_main

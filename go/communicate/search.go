@@ -11,7 +11,6 @@ import (
 
 func searchPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
-	log.Print(req.Body)
 	type SearchRequest struct {
 		Necessary_tags []int `json:"necessary_tags"`
 		Optional_tags  []int `json:"optional_tags"`
@@ -22,7 +21,6 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
-	log.Print(data)
 	// DBから植物情報（plants）取得
 	plants, err := usecase.SearchPlant(data.Necessary_tags, data.Optional_tags)
 	if err != nil {
