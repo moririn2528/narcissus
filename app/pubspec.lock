@@ -132,6 +132,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+<<<<<<< HEAD
   flutter_native_timezone:
     dependency: "direct main"
     description:
@@ -139,6 +140,8 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+=======
+>>>>>>> 737d91d38e2c7cc937edc8192dd77243a4a43b7f
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -205,6 +208,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.1"
+<<<<<<< HEAD
   googleapis:
     dependency: transitive
     description:
@@ -219,6 +223,36 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.1"
+=======
+  google_maps_flutter:
+    dependency: "direct main"
+    description:
+      name: google_maps_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.1"
+  google_maps_flutter_android:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.2"
+  google_maps_flutter_ios:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_ios
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.12"
+  google_maps_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: google_maps_flutter_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.4"
+>>>>>>> 737d91d38e2c7cc937edc8192dd77243a4a43b7f
   http:
     dependency: "direct main"
     description:
@@ -413,6 +447,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  stream_transform:
+    dependency: transitive
+    description:
+      name: stream_transform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   string_scanner:
     dependency: transitive
     description:
@@ -464,4 +505,8 @@ packages:
     version: "2.1.2"
 sdks:
   dart: ">=2.18.2 <3.0.0"
+<<<<<<< HEAD
   flutter: ">=2.10.0"
+=======
+  flutter: ">=3.0.0"
+>>>>>>> 737d91d38e2c7cc937edc8192dd77243a4a43b7f
