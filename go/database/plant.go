@@ -19,7 +19,7 @@ type DatabasePlant struct {
 func (*DatabasePlant) ListPlant() ([]usecase.PlantHash, error) {
 	var plants []usecase.PlantHash
 
-	query_main := AddHashToQuery("plant")
+	query_main := AddHashToQuery("SELECT id, name FROM plant")
 	err := db.Select(&plants, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
@@ -123,7 +123,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	return plants, nil
 }
 
-// plantのカラム(id,name)が返ってくるクエリにhashを付け足す関数
+// plantの(id,name)を含む結果が返ってくるクエリにhashを付け足す関数
 // hashはその植物IDに関する投稿のうち、最も新しいもののhash
 func AddHashToQuery(query string) string {
 	var query_main string = ""
@@ -134,15 +134,15 @@ func AddHashToQuery(query string) string {
 	query = "(" + query + ")"
 	// 植物IDと作成日ごとにhashの最大値を取得
 	// 作成日が被ったときに複数返ってくるのを防ぐためのもの
-	subquery_MaxHash += "SELECT plant_id, MAX(hash) AS hash, created_date" + " "
+	subquery_MaxHash += "SELECT plant_id, MAX(hash) AS hash, created_at" + " "
 	subquery_MaxHash += "FROM upload_post" + " "
-	subquery_MaxHash += "GROUP BY (plant_id, created_date)"
+	subquery_MaxHash += "GROUP BY plant_id, created_at"
 	subquery_MaxHash = "(" + subquery_MaxHash + ")"
 
 	// 植物IDごとの最も新しい投稿日時を求める
-	subquery_Id_NewDate += "SELECT plant_id, MAX(created_date) AS created_date" + " "
+	subquery_Id_NewDate += "SELECT plant_id, MAX(created_at) AS created_at" + " "
 	subquery_Id_NewDate += "FROM upload_post" + " "
-	subquery_Id_NewDate += "GROUP BY (plant_id)"
+	subquery_Id_NewDate += "GROUP BY plant_id"
 	subquery_Id_NewDate = "(" + subquery_Id_NewDate + ")"
 
 	// 植物IDごとのhashを求める
@@ -150,8 +150,8 @@ func AddHashToQuery(query string) string {
 	subquery_Id_Hash += "FROM " + subquery_MaxHash + " NATURAL JOIN " + subquery_Id_NewDate
 	subquery_Id_Hash = "(" + subquery_Id_Hash + ")"
 
-	// 植物名をくっつける
-	query_main += "SELECT id, name, hash" + " "
+	// hashをくっつける
+	query_main += "SELECT *" + " "
 	query_main += "FROM " + query + " NATURAL JOIN " + subquery_Id_Hash
 
 	return query_main

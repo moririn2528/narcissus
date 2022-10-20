@@ -51,6 +51,7 @@ func main() {
 	http.HandleFunc("/api/tag", communicate.TagHandle)
 	http.HandleFunc("/api/near", communicate.NearHandle)
 	http.HandleFunc("/api/post/upload", communicate.UploadPostHandle)
+	http.HandleFunc("/api/search", communicate.SearchHandle)
 
 	// 画像を配置する静的フォルダ
 	// 参考文献：https://github.com/golang/go/issues/50638

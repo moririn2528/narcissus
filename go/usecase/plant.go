@@ -11,6 +11,11 @@ type PlantHash struct {
 	Name string `db:"name"`
 	Hash string `db:"hash"`
 }
+type PlantUrl struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+	Url  string `json:"url"`
+}
 
 func ListPlant() ([]PlantHash, error) {
 	plants, err := DbPlant.ListPlant()
@@ -49,4 +54,9 @@ func SetTagsToPlant(id int, tags []string) error {
 		return errors.ErrorWrap(err)
 	}
 	return nil
+}
+
+func HashToUrl(hash string) string {
+	//TODO 画像の保存先とか拡張子が決まったら変更する
+	return "http://localhost:8080/figure/" + hash + ".png"
 }
