@@ -34,7 +34,24 @@ func plantIdentify(w http.ResponseWriter, req *http.Request, img_path string) er
 
 func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	var err error
-	// 画像ファイルをダウンロードして、保存先のpathを取得
+	// 画像ファイルをダウンロード
+	// 画像の保存先はgo/figure/ フォルダ
+	// TODO：全ての処理が終わったら画像を削除
+
+	// 画像が保存されているgcsのバケット名
+	bucket_name := ""
+	// バケットの中で、どのファイルをロードしたいか？
+	// TODO : urlパラメータの形式が分からんので指定できない助けて
+	object_name := req.FormValue("hash")
+
+	// TODO : object_nameがどんな感じで返ってくるのか分からん以下同文
+	img_path := "./figure/" + object_name + ".jpg"
+
+	// download
+	err = downloadFile(w, bucket_name, object_name, img_path)
+	if err != nil {
+		return
+	}
 
 	switch req.Method {
 	case "GET":
@@ -62,7 +79,8 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 func downloadFile(w io.Writer, bucket, object string, destFileName string) error {
 	// bucket := "bucket-name"
 	// object := "object-name"
-	// destFileName := "file.txt"
+	// destFileName := "image.jpg"
+
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
