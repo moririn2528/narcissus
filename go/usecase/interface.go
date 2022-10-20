@@ -17,6 +17,7 @@ type DatabaseNear interface {
 
 type DatabasePlantTranslate interface {
 	GetPlantIdentify(string) ([]string, error)
+	PlantTranslate([]string) ([]string, error)
 }
 
 type DatabaseUploadPost interface {
