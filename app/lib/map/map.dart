@@ -20,17 +20,17 @@ class _MapSamplePageState extends State<MapSamplePage> {
   //テスト用データ 百万遍付近
   final List<UploadPost> testPosts = [
     UploadPost(
-      name: "お花1",
-      latitude: 35.02527355160815,
-      longitude: 135.77870285267127,
-      url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Cherry_blossoms_%282004%29.jpg"
-    ),
+        name: "お花1",
+        latitude: 35.02527355160815,
+        longitude: 135.77870285267127,
+        url:
+            "https://upload.wikimedia.org/wikipedia/commons/e/e3/Cherry_blossoms_%282004%29.jpg"),
     UploadPost(
-      name: "お花2",
-      latitude: 35.02498254430388,
-      longitude: 135.77890210637494,
-      url: "https://upload.wikimedia.org/wikipedia/commons/3/30/Houttuynia_cordata4.jpg"
-    ),
+        name: "お花2",
+        latitude: 35.02498254430388,
+        longitude: 135.77890210637494,
+        url:
+            "https://upload.wikimedia.org/wikipedia/commons/3/30/Houttuynia_cordata4.jpg"),
   ];
   final double originLatitude = 35.0251;
   final double originLongitude = 135.7788;
@@ -42,16 +42,15 @@ class _MapSamplePageState extends State<MapSamplePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home:Scaffold(
-      appBar: AppBar(
-        title: const Text('Map'),
-      ),
-      body: MapAndPosts(
-        latitude: originLatitude,
-        longitude: originLongitude,
-        uploadPosts: testPosts
-      )
-    ));
+    return MaterialApp(
+        home: Scaffold(
+            appBar: AppBar(
+              title: const Text('Map'),
+            ),
+            body: MapAndPosts(
+                latitude: originLatitude,
+                longitude: originLongitude,
+                uploadPosts: testPosts)));
   }
 }
 
@@ -60,12 +59,12 @@ class _MapSamplePageState extends State<MapSamplePage> {
 // latitude, longitudeを中心としてUploadPostsの位置に対してピンを打った地図が表示される
 // ピンをタップすると詳細(写真)が表示される
 class MapAndPosts extends StatelessWidget {
-  MapAndPosts({
-    Key? key,
-    required this.latitude,
-    required this.longitude ,
-    required this.uploadPosts
-  }) : super(key: key);
+  MapAndPosts(
+      {Key? key,
+      required this.latitude,
+      required this.longitude,
+      required this.uploadPosts})
+      : super(key: key);
 
   late GoogleMapController mapController;
   final double latitude;
@@ -76,18 +75,18 @@ class MapAndPosts extends StatelessWidget {
     mapController = controller;
   }
 
-  Set<Marker> _createMaker(BuildContext context , List<UploadPost> uploadPosts){
+  Set<Marker> _createMaker(BuildContext context, List<UploadPost> uploadPosts) {
     Set<Marker> markers = {};
-    for(int i = 0; i < uploadPosts.length; i++){
+    for (int i = 0; i < uploadPosts.length; i++) {
       markers.add(Marker(
           markerId: MarkerId(i.toString()),
           position: LatLng(uploadPosts[i].latitude, uploadPosts[i].longitude),
           infoWindow: InfoWindow(title: uploadPosts[i].name),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-          onTap: (){
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          onTap: () {
             _showDialog(context, uploadPosts[i]);
-          }
-      ));
+          }));
     }
     return markers;
   }

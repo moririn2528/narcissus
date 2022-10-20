@@ -1,16 +1,13 @@
+import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../location/location.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
+import '../handle_api/handle.dart';
+import '../util/picturesListView.dart';
 
 class TestPage extends StatefulWidget {
   const TestPage({super.key});
-
   @override
   State<TestPage> createState() => _TestPageState();
 }
@@ -28,7 +25,9 @@ class _TestPageState extends State<TestPage> {
           children: [
             Text("http://${dotenv.get('API_IP')}/api/plant"),
             FutureBuilder(
-              future: fetchTest(),
+              future: fetchTest().then((value) => value, onError: (e) {
+                print(e);
+              }),
               builder: (context, snapshot) => snapshot.hasData
                   ? ListView.builder(
                       shrinkWrap: true,
@@ -51,18 +50,18 @@ class _TestPageState extends State<TestPage> {
                 child: locationProvider.position == null
                     ? Text("しばらくお待ちください")
                     : Text(locationProvider.position.toString())),
+            OutlinedButton(onPressed: () => notifyNow(), child: Text("今すぐ通知")),
+            OutlinedButton(onPressed: () => notifyLater(), child: Text("後で通知")),
+            OutlinedButton(
+                onPressed: () => notifyPlant(locationProvider.position),
+                child: Text("近くの植物を探す")),
+            AssetPicturesListView(imageDatas: [
+              ["images/a.png", "つくし"],
+              ["images/b.png", "もみじ", "とても綺麗"],
+              ["images/c.png", "おはな"]
+            ])
           ],
         ));
-  }
-
-  Future<List> fetchTest() async {
-    final response =
-        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load test');
-    }
   }
 
   @override

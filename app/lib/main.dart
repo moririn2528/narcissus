@@ -1,16 +1,15 @@
+import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'picturesListView.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'location/location.dart';
 import 'search/search.dart';
 import 'test/test.dart';
 
 Future main() async {
-  await dotenv.load(fileName: ".env");
-  runApp(const MyApp());
+  await dotenv.load(fileName: ".env").then((value) {
+    WidgetsFlutterBinding.ensureInitialized();
+    init_notification();
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -64,7 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             TestPage(),
             SearchPage(),
-
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
