@@ -19,20 +19,15 @@ func insertUploadPost(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 
-	// 各データを受け取る
-	name := data.Name
-	latitude := data.Latitude
-	longitude := data.Longitude
-
 	upload_post := usecase.UploadPost{
 		PlantId:   -1,
-		Name:      name,
-		Hash:      "",
-		Latitude:  latitude,
-		Longitude: longitude}
+		Name:      data.Name,
+		Hash:      data.Hash,
+		Latitude:  data.Latitude,
+		Longitude: data.Longitude}
 
 	// 結果を受け取ってJSONで返す
-	res, err := usecase.InsertUploadPost(data, upload_post)
+	res, err := usecase.InsertUploadPost(data.Tags, upload_post)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}

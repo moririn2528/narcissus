@@ -43,12 +43,11 @@ POST送信でJSONを送ると投稿内容をデータベース(upload_postテー
 その植物のデータがなければ新たに登録する。  
 その際に複数のtagをリクエストとして送信すると、植物とタグの関連のデータを追加する。タグが存在しなければタグを追加する。  
 
-### JSON
-flutterからgcsに画像を直でアップロードすることになったのでimageの部分はurlまたはhashに変えよう(そのうち)
+### POST送信のJSON
 - name 植物の名前
 - latitude 緯度 float64
 - longitude 経度 float64
-- image 画像データ(base64) string
+- hash 画像のhash string
 - tags タグ名(string)のリスト 植物のタグ(nullでも良い　初の植物を登録するときに便利？)
 
 ### 戻り値

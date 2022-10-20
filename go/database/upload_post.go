@@ -8,7 +8,7 @@ import (
 type DatabaseUploadPost struct {
 }
 
-func (*DatabaseUploadPost) InsertUploadPost(req usecase.UploadPostRequest, uploadPost usecase.UploadPost) (usecase.UploadPostResponse, error) {
+func (*DatabaseUploadPost) InsertUploadPost(tags []string, uploadPost usecase.UploadPost) (usecase.UploadPostResponse, error) {
 
 	query := "INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES (:plant_id,:latitude,:longitude,:hash)"
 	_, err := db.NamedExec(query, &uploadPost)
