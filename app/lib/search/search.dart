@@ -17,8 +17,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final SearchProvider searchProvider = SearchProvider();
-
   @override
   void initState() {
     super.initState();
@@ -26,28 +24,40 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final SearchProvider searchProvider = SearchProvider();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
-      body: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<SearchProvider>(
-              create: (context) => SearchProvider(),
+        appBar: AppBar(
+          title: const Text('Search'),
+        ),
+        body: SearchGroup(
+          searchProvider: searchProvider,
+        ));
+  }
+}
+
+class SearchGroup extends StatelessWidget {
+  final SearchProvider searchProvider;
+  const SearchGroup({super.key, required this.searchProvider});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<SearchProvider>(
+            create: (context) => SearchProvider(),
+          ),
+        ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(child: SearchBar(), flex: 1),
+            LimitedBox(
+              child: Suggestions(),
+              maxHeight: 200,
             ),
+            Flexible(child: Keep(), flex: 1),
           ],
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(child: SearchBar(), flex: 1),
-              LimitedBox(
-                child: Suggestions(),
-                maxHeight: 200,
-              ),
-              Flexible(child: Keep(), flex: 1),
-            ],
-          )),
-    );
+        ));
   }
 }
 
