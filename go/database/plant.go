@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"narcissus/errors"
 	"narcissus/usecase"
 	"strconv"
@@ -80,7 +81,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" +
 			"WHERE tag_id in " + plant_with_optional + ")" +
 			"UNION" +
-			"(SELECT id, name, hash" +
+			"(SELECT id, name" +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
 
 	} else if len(necessary_tags) > 0 && len(optional_tags) == 0 {
@@ -114,7 +115,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	} else {
 		plant_search_sql = "SELECT id, name FROM plant"
 	}
-
+	log.Print(plant_search_sql)
 	plant_search_sql = AddHashToQuery(plant_search_sql)
 	err := db.Select(&plants, plant_search_sql)
 	if err != nil {
