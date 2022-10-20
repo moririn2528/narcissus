@@ -4,10 +4,10 @@ import (
 	"narcissus/errors"
 )
 
-type PlantTranslate struct {
+type DatabasePlantTranslate struct {
 }
 
-func (*PlantTranslate) PlantTranslate(en_names []string) ([]string, error) {
+func (*DatabasePlantTranslate) PlantTranslate(en_names []string) ([]string, error) {
 	var jp_names []string
 
 	// en_namesからsqlを作成

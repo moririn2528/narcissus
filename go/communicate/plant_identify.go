@@ -3,45 +3,23 @@ package communicate
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
+	"time"
 
 	"narcissus/errors"
 
-	vision "cloud.google.com/go/vision/apiv1"
+	"cloud.google.com/go/storage"
 )
 
-func plantIdentify(w http.ResponseWriter, req *http.Request, file_url string) error {
+// req.FormValue is used to get request parameters from url
+// hash
+func plantIdentify(w http.ResponseWriter, req *http.Request) error {
 	var err error
 	// plant_identity, err := usecase.PlantIdentify()
 	var plant_identity string
-
-	// vision api セッティング
-	ctx := context.Background()
-
-	client, err := vision.NewImageAnnotatorClient(ctx)
-	if err != nil {
-		return err
-	}
-	// 画像が置かれているURLから画像を受け取る
-	image := vision.NewImageFromURI(file_url)
-
-	// 植物名を受け取る
-	web, err := client.DetectWeb(ctx, image, nil)
-	if err != nil {
-		return err
-	}
-
-	// webのなかの、Entityのなかでスコアが最も高いものを返す
-	if len(web.WebEntities) != 0 {
-		fmt.Fprintln(w, "\tEntities:")
-		fmt.Fprintln(w, "\t\tEntity\t\tScore\tDescription")
-		for _, entity := range web.WebEntities {
-			plant_identity = entity.Description
-		}
-	} else {
-		plant_identity = ""
-	}
 
 	// ResponseWriterで値を返却
 	err = ResponseJson(w, plant_identity)
@@ -52,7 +30,7 @@ func plantIdentify(w http.ResponseWriter, req *http.Request, file_url string) er
 
 }
 
-func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request, file_url string) {
+func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	var err error
 	switch req.Method {
 	case "GET":
@@ -72,4 +50,46 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request, file_url stri
 	}
 	w.WriteHeader(my_err.GetCode())
 	log.Print(my_err.Error())
+}
+
+// downloadFile downloads an object to a file.
+// https://cloud.google.com/storage/docs/samples/storage-download-file?hl=ja#storage_download_file-go
+// https://blog.tjun.org/entry/gaego-cloudstorage こっちもありかも？？
+func downloadFile(w io.Writer, bucket, object string, destFileName string) error {
+	// bucket := "bucket-name"
+	// object := "object-name"
+	// destFileName := "file.txt"
+	ctx := context.Background()
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("storage.NewClient: %v", err)
+	}
+	defer client.Close()
+
+	ctx, cancel := context.WithTimeout(ctx, time.Second*50)
+	defer cancel()
+
+	f, err := os.Create(destFileName)
+	if err != nil {
+		return fmt.Errorf("os.Create: %v", err)
+	}
+
+	rc, err := client.Bucket(bucket).Object(object).NewReader(ctx)
+	if err != nil {
+		return fmt.Errorf("Object(%q).NewReader: %v", object, err)
+	}
+	defer rc.Close()
+
+	if _, err := io.Copy(f, rc); err != nil {
+		return fmt.Errorf("io.Copy: %v", err)
+	}
+
+	if err = f.Close(); err != nil {
+		return fmt.Errorf("f.Close: %v", err)
+	}
+
+	fmt.Fprintf(w, "Blob %v downloaded to local file %v\n", object, destFileName)
+
+	return nil
+
 }
