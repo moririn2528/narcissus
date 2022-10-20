@@ -7,16 +7,11 @@
    <application
         android:label="app"
         android:name="${applicationName}"
-<<<<<<< HEAD
         android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
-=======
-        android:icon="@mipmap/ic_launcher">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyBlXYCPhWAt9S0zXfCgrLlhTMr1HF7x_BU"/>
-
->>>>>>> 737d91d38e2c7cc937edc8192dd77243a4a43b7f
         <activity
             android:showWhenLocked="true"
             android:turnScreenOn="true"

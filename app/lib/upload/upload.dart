@@ -1,5 +1,6 @@
 import 'dart:developer';
-
+import 'dart:async';
+import '../model.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -110,8 +111,14 @@ Future<Widget> getImageFromCamera() async {
         name = await sendVisionAI(hash);
       }).then((_) async {
         final position = await determinePosition();
-        return UploadForm(
-            image, name, hash, position.latitude, position.longitude);
+        final Info = UploadInfo(
+            name: name,
+            hash: hash,
+            image: image,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            tags: []);
+        return UploadForm(Info);
       });
     } catch (e) {
       log(e.toString());
@@ -130,18 +137,26 @@ Future<Widget> getImageFromLibrary() async {
     var hash;
     try {
       await ImagePicker()
-          .pickImage(source: ImageSource.gallery)
-          .then((value) => value!.readAsBytes().then((value) async {
-                image = value;
-                hash = await uploadImage(value);
-              }))
+          .pickImage(source: ImageSource.camera)
+          .then(
+              // 画像をアップロード
+              (value) => value!.readAsBytes().then((value) async {
+                    image = value;
+                    hash = await uploadImage(value);
+                  }))
           .then((_) async {
         // VisionAIにURLを送る
         name = await sendVisionAI(hash);
       }).then((_) async {
         final position = await determinePosition();
-        return UploadForm(
-            image, name, hash, position.latitude, position.longitude);
+        final Info = UploadInfo(
+            name: name,
+            hash: hash,
+            image: image,
+            latitude: position.latitude,
+            longitude: position.longitude,
+            tags: []);
+        return UploadForm(Info);
       });
     } catch (e) {
       log(e.toString());
@@ -153,14 +168,9 @@ Future<Widget> getImageFromLibrary() async {
 }
 
 class UploadForm extends StatelessWidget {
-  File _image;
-  String name;
-  double latitude;
-  double longitude;
-  String hash;
-  List<dynamic>? tags = [];
+  UploadInfo info;
 
-  UploadForm(this._image, this.name, this.hash, this.latitude, this.longitude);
+  UploadForm(this.info);
 
   @override
   Widget build(BuildContext context) {
@@ -170,21 +180,21 @@ class UploadForm extends StatelessWidget {
       body: Column(
         children: <Widget>[
           Center(
-            child: _image == null
+            child: info.image == null
                 ? Text('No image selected.')
-                : Image.file(_image),
+                : Image.file(info.image),
           ),
           Center(
             child: Row(
               children: [
                 Text("植物名:"),
                 TextFormField(
-                  initialValue: name,
+                  initialValue: info.name,
                   decoration: InputDecoration(
                     hintText: "植物名を入力してください",
                   ),
                   onChanged: (text) {
-                    name = text;
+                    info.name = text;
                   },
                 ),
               ],
@@ -196,9 +206,8 @@ class UploadForm extends StatelessWidget {
           OutlinedButton(
               onPressed: (() {
                 // アップロード処理
-                tags = searchProvider.keep_tags;
-                showUploadingDialog(
-                    context, name, latitude, longitude, hash, tags);
+                info.tags = searchProvider.keep_tags;
+                showUploadingDialog(context, info);
               }),
               child: Text("アップロード")),
         ],
@@ -207,22 +216,25 @@ class UploadForm extends StatelessWidget {
   }
 }
 
-void showUploadingDialog(context, String name, double latitude,
-    double longitude, String hash, List<dynamic>? tags) {
+void showUploadingDialog(context, UploadInfo info) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("アップロード"),
           content: FutureBuilder(
-            future: upload_post(name, latitude, longitude, hash, tags),
+            future: upload_post(info),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                return Text("アップロードしました");
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
+              try {
+                if (snapshot.hasData) {
+                  return Text("アップロードしました");
+                } else {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              } catch (e) {
+                return Text("アップロードに失敗しました、アプリを再起動してみてください\n" + e.toString());
               }
             },
           ),

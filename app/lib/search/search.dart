@@ -118,15 +118,15 @@ class Suggestions extends StatelessWidget {
         Provider.of<SearchProvider>(context).fieldController;
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: searchProvider.suggested_tags!.length,
+      itemCount: searchProvider.suggested_tags.length,
       itemBuilder: (context, index) {
         // 各タグの表示
         return Card(
             child: ListTile(
-          title: Text(searchProvider.suggested_tags![index]),
+          title: Text(searchProvider.suggested_tags[index]),
           // タグをタップした際の挙動
           onTap: () {
-            searchProvider.addtag(searchProvider.suggested_tags![index]);
+            searchProvider.addtag(searchProvider.suggested_tags[index]);
             searchProvider.suggested_tags = [];
             fieldController.clear();
           },
@@ -147,7 +147,7 @@ class Keep extends StatelessWidget {
       height: 50.0,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: searchProvider.keep_tags!.length,
+        itemCount: searchProvider.keep_tags.length,
         itemBuilder: (context, index) {
           // 　各タグの表示
           return Card(
@@ -162,7 +162,7 @@ class Keep extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(searchProvider.keep_tags![index]),
+                      Text(searchProvider.keep_tags[index]),
                       IconButton(
                         icon: Icon(
                           Icons.close,
@@ -171,7 +171,7 @@ class Keep extends StatelessWidget {
                         // 削除ボタンを押した際の挙動
                         onPressed: () {
                           searchProvider
-                              .removetag(searchProvider.keep_tags![index]);
+                              .removetag(searchProvider.keep_tags[index]);
                         },
                       ),
                     ],
