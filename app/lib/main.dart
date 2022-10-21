@@ -92,6 +92,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.white,
           backgroundColor: Color.fromARGB(255, 81, 180, 85),
           items: BottomNavItems(),
           // メニュータップ時の処理
