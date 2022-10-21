@@ -1,6 +1,7 @@
 package communicate
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -8,17 +9,23 @@ import (
 	"narcissus/usecase"
 )
 
-func listPlant(w http.ResponseWriter, req *http.Request) error {
+func searchPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
-	// DBから植物情報（plants）取得
-	plants, err := usecase.ListPlant()
+	type SearchRequest struct {
+		Necessary_tags []int `json:"necessary_tags"`
+		Optional_tags  []int `json:"optional_tags"`
+	}
+
+	var data SearchRequest
+	err = json.NewDecoder(req.Body).Decode(&data)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
-	// plantsは送信時にhashをurlに変換
-	// メモ
-	// 構造体の使い方：https://golang.hateblo.jp/entry/golang-how-to-use-struct
-	// スライスの使い方：https://qiita.com/k-penguin-sato/items/daad9986d6c42bdcde90
+	// DBから植物情報（plants）取得
+	plants, err := usecase.SearchPlant(data.Necessary_tags, data.Optional_tags)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
 
 	var plants_url []usecase.PlantUrl
 
@@ -35,11 +42,11 @@ func listPlant(w http.ResponseWriter, req *http.Request) error {
 	return nil
 }
 
-func PlantHandle(w http.ResponseWriter, req *http.Request) {
+func SearchHandle(w http.ResponseWriter, req *http.Request) {
 	var err error
 	switch req.Method {
-	case "GET":
-		err = listPlant(w, req)
+	case "POST":
+		err = searchPlant(w, req)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return

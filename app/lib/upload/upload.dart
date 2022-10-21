@@ -93,7 +93,8 @@ class _FormPageState extends State<FormPage> {
 }
 
 Future<Widget> getImageFromCamera() async {
-  String name;
+  List<String> candidates = [];
+  String name = "";
   UploadInfo info;
   Future<dynamic> picked;
   File image = File("/assets/images/default.png");
@@ -109,9 +110,10 @@ Future<Widget> getImageFromCamera() async {
         // 画像をアップロード
         image = File(value!.path);
         uploadImage(image, hash);
-        name = sendVisionAI(hash);
+        sendVisionAI(hash).then((value) => candidates = value);
         determinePosition().then((value) {
           info = UploadInfo(
+              candidates: candidates,
               name: name,
               hash: hash,
               image: image,
@@ -131,7 +133,8 @@ Future<Widget> getImageFromCamera() async {
 }
 
 Future<Widget> getImageFromLibrary() async {
-  String name;
+  List<String> candidates = [];
+  String name = "";
   UploadInfo info;
   Future<dynamic> picked;
   File image = File("/assets/images/default.png");
@@ -147,9 +150,10 @@ Future<Widget> getImageFromLibrary() async {
         // 画像をアップロード
         image = File(value!.path);
         uploadImage(image, hash);
-        name = sendVisionAI(hash);
+        sendVisionAI(hash).then((value) => candidates = value);
         determinePosition().then((value) {
           info = UploadInfo(
+              candidates: candidates,
               name: name,
               hash: hash,
               image: image,
@@ -184,6 +188,26 @@ class UploadForm extends StatelessWidget {
             child: info.image == null
                 ? Text('No image selected.')
                 : Image.file(info.image),
+          ),
+          Row(
+            children: [
+              Text("候補"),
+              Expanded(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemCount: info.candidates.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      title: Text(info.candidates[index]),
+                      onTap: () {
+                        info.name = info.candidates[index];
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           Center(
             child: Row(

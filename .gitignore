@@ -17,3 +17,5 @@
 # add for us
 *.env
 *.log
+app/android/app/google-services.json
+app/lib/firebase_options.dart

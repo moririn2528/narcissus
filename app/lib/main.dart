@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import '../location/provider.dart';
 import 'package:provider/provider.dart';
+import '../map/map_page.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env").then((value) {
@@ -67,6 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
         label: '一覧',
       ),
       BottomNavigationBarItem(
+        icon: Icon(Icons.map),
+        label: 'マップ',
+      ),
+      BottomNavigationBarItem(
         icon: Icon(Icons.add),
         label: 'アップロード',
       ),
@@ -87,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             TestPage(),
             LocalPlantPage(),
+            MapPage(),
             UploadPage(),
             SearchPage(),
           ],

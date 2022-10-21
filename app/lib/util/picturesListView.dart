@@ -28,6 +28,7 @@ class AssetPicturesListView extends StatelessWidget {
 }
 
 // 画像のURLのリスト(imageUrls)を渡すと垂直に並べて一覧で表示するWidget
+// TODO
 class NetworkPicturesListView extends StatelessWidget {
   NetworkPicturesListView({Key? key, required this.imageUrls})
       : super(key: key);

@@ -13,30 +13,14 @@ func insertUploadPost(w http.ResponseWriter, req *http.Request) error {
 	var err error
 
 	// 受け取ったJSONをデコード
-	var data usecase.UploadPostRequest
+	var data usecase.UploadPost
 	err = json.NewDecoder(req.Body).Decode(&data)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
 
-	// 各データを受け取る
-	name := data.Name
-	latitude := data.Latitude
-	longitude := data.Longitude
-
-	upload_post := usecase.UploadPost{
-		PlantId:   -1,
-		Name:      name,
-		Hash:      "",
-		Latitude:  latitude,
-		Longitude: longitude}
-
-	// 結果を受け取ってJSONで返す
-	res, err := usecase.InsertUploadPost(data, upload_post)
-	if err != nil {
-		return errors.ErrorWrap(err)
-	}
-	err = ResponseJson(w, res)
+	// usecase層へ渡す
+	err = usecase.InsertUploadPost(data)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}

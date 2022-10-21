@@ -39,6 +39,7 @@ class UploadPost {
 }
 
 class UploadInfo {
+  List<String> candidates = [];
   String name;
   final String hash;
   File image = File("/assets/images/default.png");
@@ -47,7 +48,8 @@ class UploadInfo {
   List<String> tags;
 
   UploadInfo(
-      {required this.name,
+      {required this.candidates,
+      required this.name,
       required this.hash,
       required this.image,
       required this.latitude,
@@ -56,6 +58,7 @@ class UploadInfo {
 
   factory UploadInfo.fromJson(Map<String, dynamic> json) {
     return UploadInfo(
+        candidates: json['canidates'],
         name: json['name'],
         hash: json['url'],
         image: json['image'],

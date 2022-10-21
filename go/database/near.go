@@ -47,11 +47,11 @@ func (*DatabaseNear) ListNear(latitude float64, longitude float64, length float6
 	subquery_uploadpost = "(" + subquery_uploadpost + ")"
 
 	// クエリの植物情報の部分
-	subquery_plant += "SELECT id, name FROM plant"
+	subquery_plant += "SELECT id, name, detail, created_at AS timestamp FROM plant"
 	subquery_plant = "(" + subquery_plant + ")"
 
 	// 最終的なクエリ
-	query_main += "SELECT id, name, hash, latitude, longitude "
+	query_main += "SELECT id, name, hash, detail, latitude, longitude, timestamp "
 	query_main += "FROM " + subquery_uploadpost + " NATURAL JOIN " + subquery_plant
 	err := db.Select(&nears, query_main)
 	if err != nil {

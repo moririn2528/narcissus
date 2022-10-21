@@ -1,7 +1,9 @@
+import 'package:app/handle_api/handle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'result.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -88,7 +90,13 @@ class SearchBar extends StatelessWidget {
                   textInputAction: TextInputAction.search,
                   // 検索ボタンの挙動を指定する関数
                   onSubmitted: (value) {
-                    print("searching");
+                    searchPlant(searchProvider.keep_tags).then((value) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // TODO
+                              builder: (context) => ));
+                    });
                   },
                   // 入力が変わった際に実行される関数
                   onChanged: (value) {

@@ -3,22 +3,35 @@ package usecase
 import "narcissus/errors"
 
 type Plant struct {
-	Id   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
-	Hash string `json:"hash" db:"hash"`
+	Id     int    `json:"id" db:"id"`
+	Name   string `json:"name" db:"name"`
+	Detail string `json:"detail" db:"detail"`
+}
+type PlantHash struct {
+	Id     int    `db:"id"`
+	Name   string `db:"name"`
+	Hash   string `db:"hash"`
+	Detail string `db:"detail"`
+}
+type PlantUrl struct {
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	Detail string `json:"detail"`
 }
 
-func ListPlant() ([]Plant, error) {
+func ListPlant() ([]PlantHash, error) {
 	plants, err := DbPlant.ListPlant()
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
+
 	return plants, nil
 }
 
 // tagを指定すると、該当する植物を返してくれる関数
 // tagは必須で含むべきものと、任意で含むべきものの2種類で指定できる
-func SearchPlant(necessary_tags []int, optional_tags []int) ([]Plant, error) {
+func SearchPlant(necessary_tags []int, optional_tags []int) ([]PlantHash, error) {
 	plants, err := DbPlant.SearchPlant(necessary_tags, optional_tags)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
@@ -36,6 +49,14 @@ func InsertPlant(plant Plant) (bool, int, error) {
 	return isNew, newId, nil
 }
 
+func IsPlantExist(name string) (bool, int, string, error) {
+	isExist, id, name, err := DbPlant.IsPlantExist(name)
+	if err != nil {
+		return false, -1, "", errors.ErrorWrap(err)
+	}
+	return isExist, id, name, nil
+}
+
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
 // isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
 func SetTagsToPlant(id int, tags []string) error {
@@ -44,4 +65,9 @@ func SetTagsToPlant(id int, tags []string) error {
 		return errors.ErrorWrap(err)
 	}
 	return nil
+}
+
+func HashToUrl(hash string) string {
+	//TODO 画像の保存先とか拡張子が決まったら変更する
+	return "http://localhost:8080/figure/" + hash + ".png"
 }

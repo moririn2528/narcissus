@@ -34,8 +34,9 @@ String uploadImage(image, hash) {
 
 // VisionAIにurlを投げて名前を返す
 // TODO
-String sendVisionAI(hash) {
-  // ここでVisionAIにURLを送る
-  throw Exception('VisionAIにURLを送る');
-  return "";
+Future<List<String>> sendVisionAI(hash) async {
+  String url =
+      "https://${dotenv.get('API_IP')}/api/plant_identify?fig_name=${hash}";
+  http.Response resp = await http.get(Uri.parse(url));
+  return json.decode(resp.body);
 }
