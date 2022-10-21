@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:async';
+import 'package:app/handle_api/gcs_api.dart';
 import '../model.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -92,37 +93,33 @@ class _FormPageState extends State<FormPage> {
 }
 
 Future<Widget> getImageFromCamera() async {
+  String name;
+  UploadInfo info;
+  Future<dynamic> picked;
+  File image = File("/assets/images/default.png");
+  String hash = DateTime.now().toString();
   if (await Permission.camera.request().isGranted &&
       await Permission.location.request().isGranted) {
-    var name;
-    var image;
-    var hash;
-    try {
-      await ImagePicker()
-          .pickImage(source: ImageSource.camera)
-          .then(
-              // 画像をアップロード
-              (value) => value!.readAsBytes().then((value) async {
-                    image = value;
-                    hash = await uploadImage(value);
-                  }))
-          .then((_) async {
-        // VisionAIにURLを送る
-        name = await sendVisionAI(hash);
-      }).then((_) async {
-        final position = await determinePosition();
-        final Info = UploadInfo(
-            name: name,
-            hash: hash,
-            image: image,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            tags: []);
-        return UploadForm(Info);
-      });
-    } catch (e) {
-      log(e.toString());
-    }
+    picked = ImagePicker().pickImage(source: ImageSource.camera).then((value) {
+      try {
+        // 画像をアップロード
+        image = File(value!.path);
+        uploadImage(image, hash);
+        name = sendVisionAI(hash);
+        determinePosition().then((value) {
+          info = UploadInfo(
+              name: name,
+              hash: hash,
+              image: image,
+              latitude: value.latitude,
+              longitude: value.longitude,
+              tags: []);
+          return UploadForm(info);
+        });
+      } catch (e) {
+        delete_from_gcs(hash);
+      }
+    });
   } else {
     return Error_Dialog("カメラ", "カメラの使用が許可されていません。");
   }
@@ -130,37 +127,33 @@ Future<Widget> getImageFromCamera() async {
 }
 
 Future<Widget> getImageFromLibrary() async {
-  if (await Permission.storage.request().isGranted &&
+  String name;
+  UploadInfo info;
+  Future<dynamic> picked;
+  File image = File("/assets/images/default.png");
+  String hash = DateTime.now().toString();
+  if (await Permission.camera.request().isGranted &&
       await Permission.location.request().isGranted) {
-    var name;
-    var image;
-    var hash;
-    try {
-      await ImagePicker()
-          .pickImage(source: ImageSource.gallery)
-          .then(
-              // 画像をアップロード
-              (value) => value!.readAsBytes().then((value) async {
-                    image = value;
-                    hash = await uploadImage(value);
-                  }))
-          .then((_) async {
-        // VisionAIにURLを送る
-        name = await sendVisionAI(hash);
-      }).then((_) async {
-        final position = await determinePosition();
-        final Info = UploadInfo(
-            name: name,
-            hash: hash,
-            image: image,
-            latitude: position.latitude,
-            longitude: position.longitude,
-            tags: []);
-        return UploadForm(Info);
-      });
-    } catch (e) {
-      log(e.toString());
-    }
+    picked = ImagePicker().pickImage(source: ImageSource.gallery).then((value) {
+      try {
+        // 画像をアップロード
+        image = File(value!.path);
+        uploadImage(image, hash);
+        name = sendVisionAI(hash);
+        determinePosition().then((value) {
+          info = UploadInfo(
+              name: name,
+              hash: hash,
+              image: image,
+              latitude: value.latitude,
+              longitude: value.longitude,
+              tags: []);
+          return UploadForm(info);
+        });
+      } catch (e) {
+        delete_from_gcs(hash);
+      }
+    });
   } else {
     return Error_Dialog("ライブラリ", "ライブラリの使用が許可されていません。");
   }
@@ -187,7 +180,13 @@ class UploadForm extends StatelessWidget {
           Center(
             child: Row(
               children: [
-                Text("植物名:${info.name}"),
+                Text("植物名:"),
+                TextFormField(
+                  initialValue: info.name,
+                  onChanged: (text) {
+                    info.name = text;
+                  },
+                ),
               ],
             ),
           ),

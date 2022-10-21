@@ -41,7 +41,7 @@ class UploadPost {
 class UploadInfo {
   String name;
   final String hash;
-  final File image;
+  File image = File("/assets/images/default.png");
   final double latitude;
   final double longitude;
   List<String> tags;

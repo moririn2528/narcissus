@@ -4,9 +4,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'search/search.dart';
 import 'test/test.dart';
 import 'upload/upload.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env").then((value) {
+    Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     WidgetsFlutterBinding.ensureInitialized();
     runApp(const MyApp());
   });
