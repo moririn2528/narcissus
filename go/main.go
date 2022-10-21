@@ -50,7 +50,7 @@ func main() {
 	http.HandleFunc("/api/plant", communicate.PlantHandle)
 	http.HandleFunc("/api/tag", communicate.TagHandle)
 	http.HandleFunc("/api/near", communicate.NearHandle)
-	// http.HandleFunc("/api/plant_identify", communicate.PlantIdentifyHandle)
+	http.HandleFunc("/api/plant_identify", communicate.PlantIdentifyHandle)
 	http.HandleFunc("/api/post/upload", communicate.UploadPostHandle)
 
 	// 画像を配置する静的フォルダ

@@ -39,10 +39,11 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	// TODO：全ての処理が終わったら画像を削除
 
 	// 画像が保存されているgcsのバケット名
-	bucket_name := ""
+	bucket_name := "narcissus-figure-1"
 	// バケットの中で、どのファイルをロードしたいか？
 	// TODO : urlパラメータの形式が分からんので指定できない助けて
-	object_name := req.FormValue("hash")
+	object_name := "upload-figure/" + req.FormValue("hash")
+	fmt.Println(object_name)
 
 	// TODO : object_nameがどんな感じで返ってくるのか分からん以下同文
 	img_path := "./figure/" + object_name + ".jpg"
