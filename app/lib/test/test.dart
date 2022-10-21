@@ -55,10 +55,10 @@ class _TestPageState extends State<TestPage> {
             OutlinedButton(
                 onPressed: () => notifyPlant(locationProvider.position),
                 child: Text("近くの植物を探す")),
-            AssetPicturesListView(imageDatas: [
-              ["images/a.png", "つくし"],
-              ["images/b.png", "もみじ", "とても綺麗"],
-              ["images/c.png", "おはな"]
+            NetworkPicturesListView(imageUrls: [
+              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "つくし"],
+              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "もみじ", "とても綺麗"],
+              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "おはな"]
             ])
           ],
         ));

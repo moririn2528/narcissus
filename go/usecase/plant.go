@@ -39,14 +39,39 @@ func SearchPlant(necessary_tags []int, optional_tags []int) ([]PlantHash, error)
 	return plants, nil
 }
 
-// Plant型(idは適当で良い)を渡すと新たに追加してくれる
-// 返り値は (存在していたか, 登録後のid, error)
-func InsertPlant(plant Plant) (bool, int, error) {
-	isNew, newId, err := DbPlant.InsertPlant(plant)
+func JudgeAndInsert(name string) (bool, int, error) {
+	isExist, id, err := IsPlantExist(name)
 	if err != nil {
 		return false, -1, errors.ErrorWrap(err)
 	}
-	return isNew, newId, nil
+	if isExist {
+		return false, id, nil
+	}
+	newId, err := InsertPlant(name)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	return true, newId, nil
+}
+
+// 植物名を渡すと新たに追加してくれる
+// 返り値は (登録後のid, error)
+func InsertPlant(name string) (int, error) {
+	newId, err := DbPlant.InsertPlant(name)
+	if err != nil {
+		return -1, errors.ErrorWrap(err)
+	}
+	return newId, nil
+}
+
+// 植物名を渡すと存在するかどうかを返す
+// 返り値は (存在するかどうか, するならそのid, error)
+func IsPlantExist(name string) (bool, int, error) {
+	isExist, id, err := DbPlant.IsPlantExist(name)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	return isExist, id, nil
 }
 
 func IsPlantExist(name string) (bool, int, string, error) {
@@ -69,5 +94,5 @@ func SetTagsToPlant(id int, tags []string) error {
 
 func HashToUrl(hash string) string {
 	//TODO 画像の保存先とか拡張子が決まったら変更する
-	return "http://localhost:8080/figure/" + hash + ".png"
+	return "https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/" + hash + ".jpg"
 }

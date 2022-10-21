@@ -3,9 +3,48 @@ package database
 import (
 	"fmt"
 	"narcissus/errors"
+	"strings"
 )
 
 type DatabasePlantTranslate struct {
+}
+
+func (*DatabasePlantTranslate) SearchPlantName(identities []string) ([]string, error) {
+	var err error
+
+	query := ""
+	query += "SELECT name FROM plant WHERE name IN (\""
+	query += strings.Join(identities, "\",\"")
+	query += "\")"
+
+	type ExistPlant struct {
+		Name string `db:"name"`
+	}
+	var exists []ExistPlant
+	var noexists []string
+	var result []string
+	err = db.Select(&exists, query)
+	if err != nil {
+		return nil, errors.ErrorWrap(err)
+	}
+
+	for _, str := range identities {
+		isExist := false
+		for _, ex := range exists {
+			if str == ex.Name {
+				isExist = true
+				break
+			}
+		}
+		if isExist {
+			result = append(result, str)
+		} else {
+			noexists = append(noexists, str)
+		}
+	}
+	result = append(result, noexists...)
+
+	return result, nil
 }
 
 func (*DatabasePlantTranslate) PlantTranslate(en_names []string) ([]string, error) {

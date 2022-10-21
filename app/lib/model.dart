@@ -22,19 +22,23 @@ class UploadPost {
   final String url;
   final double latitude;
   final double longitude;
+  final String detail;
 
   UploadPost(
       {required this.name,
       required this.url,
       required this.latitude,
-      required this.longitude});
+      required this.longitude,
+      required this.detail});
 
   factory UploadPost.fromJson(Map<String, dynamic> json) {
     return UploadPost(
         name: json['name'],
         url: json['url'],
         latitude: json['latitude'],
-        longitude: json['longitude']);
+        longitude: json['longitude'],
+        detail: json['detail']
+    );
   }
 }
 

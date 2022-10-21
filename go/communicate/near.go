@@ -49,7 +49,7 @@ func listNear(w http.ResponseWriter, req *http.Request) error {
 	}
 
 	// 探索範囲(縦,横:メートル)を受け取る 値がなければ初期値にする
-	var length float64 = 1000
+	var length float64 = 6000
 	length_str := req.FormValue("length")
 	if length_str != "" {
 		length, err = strconv.ParseFloat(length_str, 64)

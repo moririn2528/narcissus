@@ -5,7 +5,7 @@ if($cloud -eq "") {
 Write-Host $cloud
 $git_directory=$(git rev-parse --show-toplevel)
 Set-Location $git_directory
-ssh $cloud "sudo apt install -y git && git clone git@github.com:moririn2528/narcissus.git && cd narcissus && git checkout docker"
+ssh $cloud "sudo apt install -y git && git clone git@github.com:jphacks/D_2202.git narcissus"
 
 scp "./docker/cloud/startup.sh" "${cloud}:startup.sh"
 
