@@ -4,6 +4,7 @@
 CREATE TABLE plant(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+	detail TEXT,
     rarity INTEGER NOT NULL,
 	created_at TIMESTAMP DEFAULT (datetime('now','localtime')),
 	updated_at TIMESTAMP DEFAULT (datetime('now','localtime')),
@@ -14,7 +15,7 @@ BEGIN
     UPDATE plant SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-INSERT INTO plant(name,rarity) VALUES ("hoge", 0),("piyo", 1);
+INSERT INTO plant(name,detail,rarity) VALUES ("hoge","すごく綺麗", 0),("piyo","とてもきれい", 1);
 
 -- タグ情報を格納するテーブル
 CREATE TABLE tag(
