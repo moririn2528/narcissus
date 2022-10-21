@@ -55,3 +55,16 @@ INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES
 (1, 35.027641696798966, 135.7837294039685, "hash3"), -- 総合研究7号館
 (2, 34.98743999181396, 135.75932937378468, "hash4"), -- 京都タワー
 (1, 35.011490834291145, 135.76798684721498, "hash5"); -- 京都市役所
+
+-- 植物の日本語名と英語名を関連付けるテーブル
+CREATE TABLE plant_names(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	name TEXT NOT NULL,
+	english_name TEXT NOT NULL,
+	UNIQUE(name, english_name)
+);
+
+-- テストデータ 本当はnameは日本語名だが今はサンプルなのでhogeとか
+INSERT INTO plant_names(name,english_name) VALUES
+("hoge","hoge plant"),
+("piyo","piyo plant");
