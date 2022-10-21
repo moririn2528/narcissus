@@ -5,6 +5,7 @@ type DatabasePlant interface {
 	SearchPlant([]int, []int) ([]PlantHash, error)
 	InsertPlant(plant Plant) (bool, int, error)
 	SetTagsToPlant(int, []string) error
+	IsPlantExist(string) (bool, int, string, error)
 }
 
 type DatabaseTag interface {
