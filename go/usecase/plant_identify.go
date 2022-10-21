@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"narcissus/errors"
 	"net/http"
 	"strconv"
@@ -33,9 +32,8 @@ func ListPlantName(img_path string) ([]string, error) {
 
 	for _, entity := range web.WebEntities {
 		en_names = append(en_names, entity.Description)
-		log.Println(len(en_names))
 	}
-	return TranslateAndJoin(en_names)
+	return en_names, nil
 }
 
 func TranslateAndJoin(identities []string) ([]string, error) {
@@ -57,10 +55,11 @@ func TranslateAndJoin(identities []string) ([]string, error) {
 		if i == 10 {
 			break
 		}
-		if i >= len(identities) {
+		if i >= len(identities) || identities[i] == "" {
 			params.Add("text"+strconv.Itoa(i), "empty")
+		} else {
+			params.Add("text"+strconv.Itoa(i), identities[i])
 		}
-		params.Add("text"+strconv.Itoa(i), identities[i])
 		i++
 	}
 	request.URL.RawQuery = params.Encode()
@@ -79,6 +78,7 @@ func TranslateAndJoin(identities []string) ([]string, error) {
 		return nil, errors.ErrorWrap(err)
 	}
 	defer resp.Body.Close()
+	// 日本語と英語を交互にくっつける
 	var result []string
 	for i, str := range identities {
 		if i == 10 {
@@ -89,11 +89,14 @@ func TranslateAndJoin(identities []string) ([]string, error) {
 		}
 		result = append(result, str)
 	}
+
+	// 登録されている植物名があれば上に持ってくる
 	result, err = DbPlantTranslate.SearchPlantName(result)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
-	log.Print(result)
+
+	// 重複しているものを削除
 	var uniqueResult []string
 	for i, str1 := range result {
 		count := 0
@@ -102,10 +105,9 @@ func TranslateAndJoin(identities []string) ([]string, error) {
 				count++
 			}
 		}
-		if count == 1 {
+		if count == 1 && str1 != "" {
 			uniqueResult = append(uniqueResult, str1)
 		}
 	}
-	log.Print(uniqueResult)
 	return uniqueResult, nil
 }
