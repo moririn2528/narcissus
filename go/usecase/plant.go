@@ -86,5 +86,5 @@ func SetTagsToPlant(id int, tags []string) error {
 
 func HashToUrl(hash string) string {
 	//TODO 画像の保存先とか拡張子が決まったら変更する
-	return "http://localhost:8080/figure/" + hash + ".png"
+	return "https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/" + hash + ".jpg"
 }
