@@ -23,14 +23,14 @@ class _MapSamplePageState extends State<MapSamplePage> {
         name: "お花1",
         latitude: 35.02527355160815,
         longitude: 135.77870285267127,
-        url:
-            "https://upload.wikimedia.org/wikipedia/commons/e/e3/Cherry_blossoms_%282004%29.jpg"),
+        url: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Cherry_blossoms_%282004%29.jpg",
+        detail: "とても綺麗"),
     UploadPost(
         name: "お花2",
         latitude: 35.02498254430388,
         longitude: 135.77890210637494,
-        url:
-            "https://upload.wikimedia.org/wikipedia/commons/3/30/Houttuynia_cordata4.jpg"),
+        url: "https://upload.wikimedia.org/wikipedia/commons/3/30/Houttuynia_cordata4.jpg",
+        detail: "すごく綺麗"),
   ];
   final double originLatitude = 35.0251;
   final double originLongitude = 135.7788;
@@ -93,7 +93,7 @@ class MapAndPosts extends StatelessWidget {
 
   Future<void> _showDialog(BuildContext context, UploadPost uploadPost) async {
     final String name = uploadPost.name;
-    //final String detail = "";
+    final String detail = uploadPost.detail;
     final Widget image = Image.network(uploadPost.url);
     return showDialog<void>(
       context: context,
@@ -105,6 +105,7 @@ class MapAndPosts extends StatelessWidget {
             child: ListBody(
               children: <Widget>[
                 image,
+                Text(detail),
               ],
             ),
           ),

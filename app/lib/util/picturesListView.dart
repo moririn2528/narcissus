@@ -23,25 +23,36 @@ class AssetPicturesListView extends StatelessWidget {
                     name: imageDatas[index][1],
                     detail: imageDatas[index][2]);
               }
-            }));
+            }
+        )
+    );
   }
 }
 
 // 画像のURLのリスト(imageUrls)を渡すと垂直に並べて一覧で表示するWidget
 class NetworkPicturesListView extends StatelessWidget {
-  NetworkPicturesListView({Key? key, required this.imageUrls})
-      : super(key: key);
+  NetworkPicturesListView({Key? key, required this.imageUrls}) : super(key: key);
   final List imageUrls;
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
         child: ListView.builder(
-      shrinkWrap: true,
-      itemCount: imageUrls.length,
-      itemBuilder: (BuildContext context, int index) {
-        return PictureCard(
-            image: Image.network(imageUrls[index]), name: "a", detail: "");
-      },
+          shrinkWrap: true,
+          itemCount: imageUrls.length,
+          itemBuilder: (context, index) {
+            if (imageUrls[index].length == 2) {
+              return PictureCard(
+                  image: Image.network(imageUrls[index][0]),
+                  name: imageUrls[index][1],
+                  detail: "");
+            } else {
+              return PictureCard(
+                  image: Image.network(imageUrls[index][0]),
+                  name: imageUrls[index][1],
+                  detail: imageUrls[index][2]);
+            }
+          }
     ));
   }
 }
