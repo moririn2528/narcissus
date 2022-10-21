@@ -59,3 +59,13 @@ POST送信でJSON(必須タグのリストと任意タグのリスト)を送る�
 - name (植物の名前, string)
 - url (植物の画像のURL, string)
 - detail (植物の説明, string)
+
+## /plant_identify
+GETでhashを送ると植物の名前候補が返ってくる
+
+### パラメータ
+- hash 植物写真のファイル名(拡張子なし) string
+
+### 戻り値
+- is_empty 以下が空かどうか bool
+- identifies 植物の名前候補のリスト stringのリスト

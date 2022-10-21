@@ -3,9 +3,9 @@ package usecase
 type DatabasePlant interface {
 	ListPlant() ([]PlantHash, error)
 	SearchPlant([]int, []int) ([]PlantHash, error)
-	InsertPlant(plant Plant) (bool, int, error)
+	InsertPlant(string) (int, error)
 	SetTagsToPlant(int, []string) error
-	IsPlantExist(string) (bool, int, string, error)
+	IsPlantExist(string) (bool, int, error)
 }
 
 type DatabaseTag interface {
@@ -18,6 +18,7 @@ type DatabaseNear interface {
 
 type DatabasePlantTranslate interface {
 	PlantTranslate([]string) ([]string, error)
+	SearchPlantName([]string) ([]string, error)
 }
 
 type DatabaseUploadPost interface {

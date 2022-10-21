@@ -57,7 +57,6 @@ func main() {
 
 	http.HandleFunc("/api/plant_identify", communicate.PlantIdentifyHandle)
 
-
 	// 画像を配置する静的フォルダ
 	// 参考文献：https://github.com/golang/go/issues/50638
 	http.Handle("/figure/", http.FileServer(http.Dir(".")))
