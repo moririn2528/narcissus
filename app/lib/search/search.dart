@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,8 +17,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final SearchProvider searchProvider = SearchProvider();
-
   @override
   void initState() {
     super.initState();
@@ -28,28 +24,40 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    final SearchProvider searchProvider = SearchProvider();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
-      body: MultiProvider(
-          providers: [
-            ChangeNotifierProvider<SearchProvider>(
-              create: (context) => SearchProvider(),
+        appBar: AppBar(
+          title: const Text('Search'),
+        ),
+        body: SearchGroup(
+          searchProvider: searchProvider,
+        ));
+  }
+}
+
+class SearchGroup extends StatelessWidget {
+  final SearchProvider searchProvider;
+  const SearchGroup({super.key, required this.searchProvider});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider<SearchProvider>(
+            create: (context) => SearchProvider(),
+          ),
+        ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(child: SearchBar(), flex: 1),
+            LimitedBox(
+              child: Suggestions(),
+              maxHeight: 200,
             ),
+            Flexible(child: Keep(), flex: 1),
           ],
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Flexible(child: SearchBar(), flex: 1),
-              LimitedBox(
-                child: Suggestions(),
-                maxHeight: 200,
-              ),
-              Flexible(child: Keep(), flex: 1),
-            ],
-          )),
-    );
+        ));
   }
 }
 
@@ -110,15 +118,15 @@ class Suggestions extends StatelessWidget {
         Provider.of<SearchProvider>(context).fieldController;
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: searchProvider.suggested_tags!.length,
+      itemCount: searchProvider.suggested_tags.length,
       itemBuilder: (context, index) {
         // 各タグの表示
         return Card(
             child: ListTile(
-          title: Text(searchProvider.suggested_tags![index]),
+          title: Text(searchProvider.suggested_tags[index]),
           // タグをタップした際の挙動
           onTap: () {
-            searchProvider.addtag(searchProvider.suggested_tags![index]);
+            searchProvider.addtag(searchProvider.suggested_tags[index]);
             searchProvider.suggested_tags = [];
             fieldController.clear();
           },
@@ -139,7 +147,7 @@ class Keep extends StatelessWidget {
       height: 50.0,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: searchProvider.keep_tags!.length,
+        itemCount: searchProvider.keep_tags.length,
         itemBuilder: (context, index) {
           // 　各タグの表示
           return Card(
@@ -154,7 +162,7 @@ class Keep extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(searchProvider.keep_tags![index]),
+                      Text(searchProvider.keep_tags[index]),
                       IconButton(
                         icon: Icon(
                           Icons.close,
@@ -163,7 +171,7 @@ class Keep extends StatelessWidget {
                         // 削除ボタンを押した際の挙動
                         onPressed: () {
                           searchProvider
-                              .removetag(searchProvider.keep_tags![index]);
+                              .removetag(searchProvider.keep_tags[index]);
                         },
                       ),
                     ],
