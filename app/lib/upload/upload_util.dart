@@ -27,7 +27,6 @@ Future<void> upload_post(UploadInfo info) async {
 }
 
 // 画像のアップロードをする関数
-// TODO
 String uploadImage(image, hash) {
   upload_to_gcs(image, hash);
   return hash;

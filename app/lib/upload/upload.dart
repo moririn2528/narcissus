@@ -97,7 +97,11 @@ Future<Widget> getImageFromCamera() async {
   UploadInfo info;
   Future<dynamic> picked;
   File image = File("/assets/images/default.png");
-  String hash = DateTime.now().toString();
+  String hash = DateTime.now()
+      .toString()
+      .replaceAll(" ", "")
+      .replaceAll(":", "")
+      .replaceAll(".", "");
   if (await Permission.camera.request().isGranted &&
       await Permission.location.request().isGranted) {
     picked = ImagePicker().pickImage(source: ImageSource.camera).then((value) {
@@ -131,7 +135,11 @@ Future<Widget> getImageFromLibrary() async {
   UploadInfo info;
   Future<dynamic> picked;
   File image = File("/assets/images/default.png");
-  String hash = DateTime.now().toString();
+  String hash = DateTime.now()
+      .toString()
+      .replaceAll(" ", "")
+      .replaceAll(":", "")
+      .replaceAll(".", "");
   if (await Permission.camera.request().isGranted &&
       await Permission.location.request().isGranted) {
     picked = ImagePicker().pickImage(source: ImageSource.gallery).then((value) {
