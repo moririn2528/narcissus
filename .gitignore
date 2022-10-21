@@ -19,3 +19,4 @@
 *.log
 app/android/app/google-services.json
 app/lib/firebase_options.dart
+app/ios/Runner/GoogleService-Info.plist
