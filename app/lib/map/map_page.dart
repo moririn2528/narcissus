@@ -27,7 +27,7 @@ class MapPageState extends State<MapPage> {
       ),
       body: Center(
           child: plants.isEmpty
-              ? const Text('マップが表示できません')
+              ? const Text('近くに植物がありません')
               : MapAndPosts(
                   latitude: locationProvider.position.latitude,
                   longitude: locationProvider.position.longitude,

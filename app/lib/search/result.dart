@@ -13,7 +13,7 @@ class _ResultPageState extends State<ResultPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Result'),
+        title: const Text('検索結果'),
       ),
       body: Center(child: NetworkPicturesListView(imageUrls: widget.imageUrls)),
     );

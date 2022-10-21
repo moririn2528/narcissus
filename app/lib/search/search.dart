@@ -94,7 +94,7 @@ class SearchBar extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            // TODO
+                            // TODO　ナビゲートして検索結果を表示する
                               builder: (context) => ));
                     });
                   },
