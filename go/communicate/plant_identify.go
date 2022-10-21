@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"narcissus/errors"
+	"narcissus/usecase"
 
 	"cloud.google.com/go/storage"
 )
@@ -18,10 +19,12 @@ import (
 // hash
 func plantIdentify(w http.ResponseWriter, req *http.Request, img_path string) error {
 	var err error
-	// plant_identity, err := usecase.PlantIdentify()
-	var plant_identity string
 
 	// URLをusecase/plant_identify.go > GetPlantIdentify()に入力
+	plant_identity, err := usecase.GetPlantIdentify(img_path)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
 
 	// ResponseWriterで値を返却
 	err = ResponseJson(w, plant_identity)
@@ -46,11 +49,12 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	fmt.Println(object_name)
 
 	// TODO : object_nameがどんな感じで返ってくるのか分からん以下同文
-	img_path := "./figure/" + object_name + ".jpg"
+	img_path := "./figure/" + object_name
 
 	// download
 	err = downloadFile(w, bucket_name, object_name, img_path)
 	if err != nil {
+		fmt.Println("Failed to download figure: ", err)
 		return
 	}
 
@@ -64,6 +68,10 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 	if err == nil {
 		return
 	}
+
+	// downloadした画像を削除
+	os.Remove(img_path)
+
 	my_err, ok := err.(*errors.MyError)
 	if !ok {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -76,7 +84,6 @@ func PlantIdentifyHandle(w http.ResponseWriter, req *http.Request) {
 
 // downloadFile downloads an object to a file.
 // https://cloud.google.com/storage/docs/samples/storage-download-file?hl=ja#storage_download_file-go
-// https://blog.tjun.org/entry/gaego-cloudstorage こっちもありかも？？
 func downloadFile(w io.Writer, bucket, object string, destFileName string) error {
 	// bucket := "bucket-name"
 	// object := "object-name"
@@ -111,8 +118,8 @@ func downloadFile(w io.Writer, bucket, object string, destFileName string) error
 		return fmt.Errorf("f.Close: %v", err)
 	}
 
-	fmt.Fprintf(w, "Blob %v downloaded to local file %v\n", object, destFileName)
-
+	// fmt.Fprintf(w, "Blob %v downloaded to local file %v\n", object, destFileName)
+	fmt.Printf("Blob %v downloaded to local file %v\n", object, destFileName)
 	return nil
 
 }

@@ -46,6 +46,7 @@ func main() {
 	usecase.DbTag = &database.DatabaseTag{}
 	usecase.DbNear = &database.DatabaseNear{}
 	usecase.DbUploadPost = &database.DatabaseUploadPost{}
+	usecase.DbPlantTranslate = &database.DatabasePlantTranslate{}
 
 	http.HandleFunc("/api/plant", communicate.PlantHandle)
 	http.HandleFunc("/api/tag", communicate.TagHandle)

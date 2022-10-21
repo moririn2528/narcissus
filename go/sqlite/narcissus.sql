@@ -58,3 +58,15 @@ INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES
 (1, 35.011490834291145, 135.76798684721498, "hash"); -- 京都市役所
 (0, 35.0303004, 135.7911536, "home");
 
+-- 植物名を英語から日本語に変換
+CREATE TABLE plant_translate(
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	en_name TEXT NOT NULL,
+	jp_name TEXT NOT NULL,
+	created_at TIMESTAMP DEFAULT (datetime('now','localtime'))
+);
+
+INSERT INTO plant_translate(en_name, jp_name) VALUES
+("Cherry blossom", "桜");
+
+

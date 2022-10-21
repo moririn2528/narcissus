@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"narcissus/errors"
 	"os"
 
@@ -23,6 +24,7 @@ func GetPlantIdentify(img_path string) ([]string, error) {
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
+	fmt.Println("English plant names were found successfully")
 
 	// 英語を日本語に翻訳
 	plant_names, err := translatePlantName(en_plant_names)
@@ -64,16 +66,24 @@ func listPlantName(img_path string) ([]string, error) {
 	if len(web.WebEntities) != 0 {
 		for _, entity := range web.WebEntities {
 			// 返り値にEntity名を追加
+			fmt.Println(entity.Description)
 			en_names = append(en_names, entity.Description)
 		}
 	}
+	fmt.Println(en_names, err)
 
 	return en_names, nil
 }
 
 // 植物名のリスト（英語）から植物名のリスト（日本語）に変換
 func translatePlantName(en_names []string) ([]string, error) {
+	var err error
 	translated_names, err := DbPlantTranslate.PlantTranslate(en_names)
+	if translated_names == nil {
+		return nil, errors.ErrorWrap(err)
+	}
+
+	print("translated_names", translated_names, err)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
