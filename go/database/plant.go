@@ -19,7 +19,7 @@ type DatabasePlant struct {
 func (*DatabasePlant) ListPlant() ([]usecase.PlantHash, error) {
 	var plants []usecase.PlantHash
 
-	query_main := AddHashToQuery("SELECT id, name FROM plant")
+	query_main := AddHashToQuery("SELECT id, name, detail FROM plant")
 	err := db.Select(&plants, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
@@ -76,11 +76,11 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "SELECT DISTINCT id, name " +
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + ")) " +
 			"WHERE tag_id IN " + "(" + plant_with_optional + ")" +
 			" UNION " +
-			"SELECT DISTINCT id, name " +
+			"SELECT DISTINCT id, name, detail " +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) > 0 && len(optional_tags) == 0 {
@@ -93,7 +93,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "SELECT DISTINCT id, name " +
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
 			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) == 0 && len(optional_tags) > 0 {
@@ -107,12 +107,12 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 			}
 		}
 
-		plant_search_sql = "SELECT DISTINCT id, name " +
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
 			"FROM plant NATURAL JOIN (SELECT plant_id AS id, tag_id FROM plant_tag) " +
 			"WHERE tag_id in (" + plant_with_optional + ")"
 
 	} else {
-		plant_search_sql = "SELECT DISTINCT id, name FROM plant"
+		plant_search_sql = "SELECT DISTINCT id, name, detail FROM plant"
 	}
 	plant_search_sql = AddHashToQuery(plant_search_sql)
 	err := db.Select(&plants, plant_search_sql)
@@ -122,7 +122,7 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	return plants, nil
 }
 
-// plantの(id,name)を含む結果が返ってくるクエリにhashを付け足す関数
+// plantのidを含む結果が返ってくるクエリにhashを付け足す関数
 // hashはその植物IDに関する投稿のうち、最も新しいもののhash
 func AddHashToQuery(query string) string {
 	var query_main string = ""
@@ -172,7 +172,7 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 	}
 
 	// 新しいデータとして挿入する
-	query := "INSERT INTO plant(name, rarity) VALUES (:name,0)"
+	query := "INSERT INTO plant(name, detail, rarity) VALUES (:name. :detail, 0)"
 	res, err := db.NamedExec(query, &plant)
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)

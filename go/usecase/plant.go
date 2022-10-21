@@ -3,18 +3,21 @@ package usecase
 import "narcissus/errors"
 
 type Plant struct {
-	Id   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
+	Id     int    `json:"id" db:"id"`
+	Name   string `json:"name" db:"name"`
+	Detail string `json:"detail" db:"detail"`
 }
 type PlantHash struct {
-	Id   int    `db:"id"`
-	Name string `db:"name"`
-	Hash string `db:"hash"`
+	Id     int    `db:"id"`
+	Name   string `db:"name"`
+	Hash   string `db:"hash"`
+	Detail string `db:"detail"`
 }
 type PlantUrl struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-	Url  string `json:"url"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	Url    string `json:"url"`
+	Detail string `json:"detail"`
 }
 
 func ListPlant() ([]PlantHash, error) {

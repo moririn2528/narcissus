@@ -31,7 +31,7 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 
 	for _, v := range plants {
 		url := usecase.HashToUrl(v.Hash)
-		plants_url = append(plants_url, usecase.PlantUrl{Id: v.Id, Name: v.Name, Url: url})
+		plants_url = append(plants_url, usecase.PlantUrl{Id: v.Id, Name: v.Name, Url: url, Detail: v.Detail})
 	}
 
 	// hash -> url 変換済みplantsの型
