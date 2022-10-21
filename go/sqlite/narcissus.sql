@@ -70,3 +70,17 @@ CREATE TABLE plant_names(
 INSERT INTO plant_names(name,english_name) VALUES
 ("hoge","hoge plant"),
 ("piyo","piyo plant");
+
+-- 植物名を英語から日本語に変換
+-- CREATE TABLE plant_translate(
+-- 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+-- 	en_name TEXT NOT NULL,
+-- 	jp_name TEXT NOT NULL,
+-- 	created_at TIMESTAMP DEFAULT (datetime('now','localtime'))
+-- );
+
+-- INSERT INTO plant_translate(en_name, jp_name) VALUES
+-- ("Cherry blossom", "桜");
+
+
+
