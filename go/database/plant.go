@@ -16,9 +16,11 @@ var (
 type DatabasePlant struct {
 }
 
-func (*DatabasePlant) ListPlant() ([]usecase.Plant, error) {
-	var plants []usecase.Plant
-	err := db.Select(&plants, "SELECT id, name, hash FROM plant")
+func (*DatabasePlant) ListPlant() ([]usecase.PlantHash, error) {
+	var plants []usecase.PlantHash
+
+	query_main := AddHashToQuery("SELECT id, name, detail FROM plant")
+	err := db.Select(&plants, query_main)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}
@@ -27,8 +29,8 @@ func (*DatabasePlant) ListPlant() ([]usecase.Plant, error) {
 
 // タグをもとに植物を検索
 // tagはtag_idのsliceが渡されることを想定している
-func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]usecase.Plant, error) {
-	var plants []usecase.Plant
+func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]usecase.PlantHash, error) {
+	var plants []usecase.PlantHash
 
 	// sql1:必須タグプラス、任意タグをどれか一つ以上含む植物：必須タグ and (任意タグ or 任意タグ or ................)
 	// sql2:必須タグだけ含み、任意タグを含まない植物：必須タグ and (not 任意タグ and not 任意タグ and ................)
@@ -54,65 +56,65 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	var plant_with_optional string = ""
 
 	// 最終的に実行したSQLコード
-	var plant_search_sql string = "["
+	var plant_search_sql string = ""
 
 	if len(necessary_tags) > 0 && len(optional_tags) > 0 {
 		// 任意タグも必須タグも入力された場合
 		for i, v := range necessary_tags {
 			if len(necessary_tags) == i+1 {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
 			} else {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
 			}
 		}
 
 		for i, v := range optional_tags {
 			if len(optional_tags) == i+1 {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\"]"
+				plant_with_optional += strconv.Itoa(v)
 			} else {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\", "
+				plant_with_optional += strconv.Itoa(v) + ","
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" +
-			"WHERE tag_id in " + plant_with_optional + ")" +
-			"UNION" +
-			"(SELECT id, name, hash" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + ")) " +
+			"WHERE tag_id IN " + "(" + plant_with_optional + ")" +
+			" UNION " +
+			"SELECT DISTINCT id, name, detail " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) > 0 && len(optional_tags) == 0 {
 		// 必須タグのみの入力
 		for i, v := range necessary_tags {
 			if len(necessary_tags) == i+1 {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v)
 			} else {
-				plant_with_necessary += "SELECT * FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
+				plant_with_necessary += "SELECT plant_id FROM plant_tag WHERE tag_id = " + strconv.Itoa(v) + " INTERSECT "
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
-			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE tag_id IN (" + plant_with_necessary + "))" + ")"
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
+			"FROM plant NATURAL JOIN (SELECT plant_id as id, tag_id FROM plant_tag WHERE plant_id IN (" + plant_with_necessary + "))"
 
 	} else if len(necessary_tags) == 0 && len(optional_tags) > 0 {
 		// 任意タグだけの入力
 
 		for i, v := range optional_tags {
 			if len(optional_tags) == i+1 {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\"]"
+				plant_with_optional += strconv.Itoa(v)
 			} else {
-				plant_with_optional += "\"" + strconv.Itoa(v) + "\", "
+				plant_with_optional += strconv.Itoa(v) + ","
 			}
 		}
 
-		plant_search_sql = "(SELECT id, name, hash" +
-			"FROM plant, plant_tag" +
-			"WHERE tag_id in " + plant_with_optional + ")"
+		plant_search_sql = "SELECT DISTINCT id, name, detail " +
+			"FROM plant NATURAL JOIN (SELECT plant_id AS id, tag_id FROM plant_tag) " +
+			"WHERE tag_id in (" + plant_with_optional + ")"
 
 	} else {
-		plant_search_sql = "SELECT id, name, hash FROM plant"
+		plant_search_sql = "SELECT DISTINCT id, name, detail FROM plant"
 	}
-
+	plant_search_sql = AddHashToQuery(plant_search_sql)
 	err := db.Select(&plants, plant_search_sql)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
@@ -120,23 +122,45 @@ func (*DatabasePlant) SearchPlant(necessary_tags []int, optional_tags []int) ([]
 	return plants, nil
 }
 
+// plantのidを含む結果が返ってくるクエリにhashを付け足す関数
+// hashはその植物IDに関する投稿のうち、最も新しいもののhash
+func AddHashToQuery(query string) string {
+	var query_main string = ""
+	var subquery_Id_Hash string = ""
+	var subquery_Id_NewDate string = ""
+	var subquery_MaxHash string = ""
+
+	query = "(" + query + ")"
+	// 植物IDと作成日ごとにhashの最大値を取得
+	// 作成日が被ったときに複数返ってくるのを防ぐためのもの
+	subquery_MaxHash += "SELECT plant_id, MAX(hash) AS hash, created_at" + " "
+	subquery_MaxHash += "FROM upload_post" + " "
+	subquery_MaxHash += "GROUP BY plant_id, created_at"
+	subquery_MaxHash = "(" + subquery_MaxHash + ")"
+
+	// 植物IDごとの最も新しい投稿日時を求める
+	subquery_Id_NewDate += "SELECT plant_id, MAX(created_at) AS created_at" + " "
+	subquery_Id_NewDate += "FROM upload_post" + " "
+	subquery_Id_NewDate += "GROUP BY plant_id"
+	subquery_Id_NewDate = "(" + subquery_Id_NewDate + ")"
+
+	// 植物IDごとのhashを求める
+	subquery_Id_Hash += "SELECT plant_id AS id, hash" + " "
+	subquery_Id_Hash += "FROM " + subquery_MaxHash + " NATURAL JOIN " + subquery_Id_NewDate
+	subquery_Id_Hash = "(" + subquery_Id_Hash + ")"
+
+	// hashをくっつける
+	query_main += "SELECT DISTINCT *" + " "
+	query_main += "FROM " + query + " NATURAL JOIN " + subquery_Id_Hash
+
+	return query_main
+}
+
 // 植物データを挿入する
 // 返り値は, (挿入できたか, 新ID, error)
 func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
-
-	// nameが一致する植物が存在するかチェック
-	isExist, id, err := IsPlantExist(plant.Name)
-	if err != nil {
-		return true, -1, errors.ErrorWrap(err)
-	}
-
-	// 存在する場合はそのidを返す
-	if isExist {
-		return false, id, nil
-	}
-
 	// 新しいデータとして挿入する
-	query := "INSERT INTO plant(name, hash, rarity) VALUES (:name,:hash,0)"
+	query := "INSERT INTO plant(name, detail, rarity) VALUES (:name. :detail, 0)"
 	res, err := db.NamedExec(query, &plant)
 	if err != nil {
 		return true, -1, errors.ErrorWrap(err)
@@ -151,12 +175,15 @@ func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
 
 // 名前から植物が存在するかをチェックする
 // 返り値: (存在するか, そのid, error)
-func IsPlantExist(name string) (bool, int, error) {
+func (*DatabasePlant) IsPlantExist(name string) (bool, int, string, error) {
+	// 英語名から日本語名に変換する 暫定処理
+	// query := "SELECT name FROM plant_names WHERE name = " + strconv.Quote(name)
+	// plantテーブルにあるかチェックする
 	var plants []usecase.Plant
 	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
 	err := db.Select(&plants, query)
 	if err != nil {
-		return false, -1, errors.ErrorWrap(err)
+		return false, -1, "", errors.ErrorWrap(err)
 	}
 
 	isExist := len(plants) > 0
@@ -164,7 +191,7 @@ func IsPlantExist(name string) (bool, int, error) {
 	if isExist {
 		plantId = plants[0].Id
 	}
-	return isExist, plantId, nil
+	return isExist, plantId, "", nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する

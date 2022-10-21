@@ -2,21 +2,11 @@
 
 ## /plant
 ### 戻り値
-{
-    plant:[
-        {
-            id: 0,
-            name: "hoge",
-            url: "huga"
-        },
-        {
-            id: 1,
-            name: "piyo",
-            url: "url"
-        },
-    ]
-    status: 200
-}
+以下の値の組のリストがJSONの文字列として返る
+- id (植物のID, int)
+- name (植物の名前, string)
+- url (植物の画像のURL, string)
+- detail (植物の説明, string)
 
 ## /near
 ### パラメータ
@@ -34,22 +24,38 @@ IsEmptyは、結果のリストが空なら1、そうでないなら0
 - id (植物のID, int)
 - name (植物の名前, string)
 - url (植物の画像のURL, string)
+- detail (植物の説明, string)
 - latitude (投稿時の緯度, float64)
 - longitude (投稿時の経度, float64)
 - distance (その場所までの距離, float64)
+- timestamp (投稿日時, string)
 
 ## /post/upload
 POST送信でJSONを送ると投稿内容をデータベース(upload_postテーブル)に保存できる。  
 その植物のデータがなければ新たに登録する。  
 その際に複数のtagをリクエストとして送信すると、植物とタグの関連のデータを追加する。タグが存在しなければタグを追加する。  
 
-### JSON
-flutterからgcsに画像を直でアップロードすることになったのでimageの部分はurlまたはhashに変えよう(そのうち)
-- name 植物の名前
+### POST送信のJSON
+tagsは無くても良いけど一応残しとく
+- plant_id 植物のID
 - latitude 緯度 float64
 - longitude 経度 float64
-- image 画像データ(base64) string
-- tags タグ名(string)のリスト 植物のタグ(nullでも良い　初の植物を登録するときに便利？)
+- hash 画像のhash string
+- tags タグ名(string)のリスト 植物のタグ(植物にタグを登録できる)
 
 ### 戻り値
-- is_new_plant 植物データを新しく登録したかどうか(bool)
+なし
+
+## /search
+POST送信でJSON(必須タグのリストと任意タグのリスト)を送ると、必須タグをすべて含んだ植物情報が返ってくる。任意タグを含むものから並ぶ。
+
+### POST送信のJSON
+- necessary_tags 必須タグid(int)のリスト　空(null)でもよい
+- optional_tags 任意タグid(int)のリスト　空(null)でもよい
+
+### 戻り値
+以下の値の組のリストがJSONの文字列として返る
+- id (植物のID, int)
+- name (植物の名前, string)
+- url (植物の画像のURL, string)
+- detail (植物の説明, string)
