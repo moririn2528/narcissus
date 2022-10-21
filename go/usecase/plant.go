@@ -74,13 +74,6 @@ func IsPlantExist(name string) (bool, int, error) {
 	return isExist, id, nil
 }
 
-func IsPlantExist(name string) (bool, int, string, error) {
-	isExist, id, name, err := DbPlant.IsPlantExist(name)
-	if err != nil {
-		return false, -1, "", errors.ErrorWrap(err)
-	}
-	return isExist, id, name, nil
-}
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
 // isAddTagがtrueなら、存在しないタグを新たにtagテーブルに追加する
