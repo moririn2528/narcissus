@@ -39,22 +39,39 @@ func SearchPlant(necessary_tags []int, optional_tags []int) ([]PlantHash, error)
 	return plants, nil
 }
 
-// Plant型(idは適当で良い)を渡すと新たに追加してくれる
-// 返り値は (存在していたか, 登録後のid, error)
-func InsertPlant(plant Plant) (bool, int, error) {
-	isNew, newId, err := DbPlant.InsertPlant(plant)
+func JudgeAndInsert(name string) (bool, int, error) {
+	isExist, id, err := IsPlantExist(name)
 	if err != nil {
 		return false, -1, errors.ErrorWrap(err)
 	}
-	return isNew, newId, nil
+	if isExist {
+		return false, id, nil
+	}
+	newId, err := InsertPlant(name)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	return true, newId, nil
 }
 
-func IsPlantExist(name string) (bool, int, string, error) {
-	isExist, id, name, err := DbPlant.IsPlantExist(name)
+// 植物名を渡すと新たに追加してくれる
+// 返り値は (登録後のid, error)
+func InsertPlant(name string) (int, error) {
+	newId, err := DbPlant.InsertPlant(name)
 	if err != nil {
-		return false, -1, "", errors.ErrorWrap(err)
+		return -1, errors.ErrorWrap(err)
 	}
-	return isExist, id, name, nil
+	return newId, nil
+}
+
+// 植物名を渡すと存在するかどうかを返す
+// 返り値は (存在するかどうか, するならそのid, error)
+func IsPlantExist(name string) (bool, int, error) {
+	isExist, id, err := DbPlant.IsPlantExist(name)
+	if err != nil {
+		return false, -1, errors.ErrorWrap(err)
+	}
+	return isExist, id, nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する

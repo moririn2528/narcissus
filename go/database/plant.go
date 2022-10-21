@@ -158,24 +158,29 @@ func AddHashToQuery(query string) string {
 
 // 植物データを挿入する
 // 返り値は, (挿入できたか, 新ID, error)
-func (*DatabasePlant) InsertPlant(plant usecase.Plant) (bool, int, error) {
+func (*DatabasePlant) InsertPlant(name string) (int, error) {
 	// 新しいデータとして挿入する
-	query := "INSERT INTO plant(name, detail, rarity) VALUES (:name. :detail, 0)"
+	var plant usecase.Plant = usecase.Plant{
+		Id:     -1,
+		Name:   name,
+		Detail: "",
+	}
+	query := "INSERT INTO plant(name, detail, rarity) VALUES (:name, :detail, 0)"
 	res, err := db.NamedExec(query, &plant)
 	if err != nil {
-		return true, -1, errors.ErrorWrap(err)
+		return -1, errors.ErrorWrap(err)
 	}
 	newId, err := res.LastInsertId()
 	if err != nil {
-		return true, -1, errors.ErrorWrap(err)
+		return -1, errors.ErrorWrap(err)
 	}
 
-	return true, int(newId), nil
+	return int(newId), nil
 }
 
 // 名前から植物が存在するかをチェックする
 // 返り値: (存在するか, そのid, error)
-func (*DatabasePlant) IsPlantExist(name string) (bool, int, string, error) {
+func (*DatabasePlant) IsPlantExist(name string) (bool, int, error) {
 	// 英語名から日本語名に変換する 暫定処理
 	// query := "SELECT name FROM plant_names WHERE name = " + strconv.Quote(name)
 	// plantテーブルにあるかチェックする
@@ -183,7 +188,7 @@ func (*DatabasePlant) IsPlantExist(name string) (bool, int, string, error) {
 	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
 	err := db.Select(&plants, query)
 	if err != nil {
-		return false, -1, "", errors.ErrorWrap(err)
+		return false, -1, errors.ErrorWrap(err)
 	}
 
 	isExist := len(plants) > 0
@@ -191,7 +196,7 @@ func (*DatabasePlant) IsPlantExist(name string) (bool, int, string, error) {
 	if isExist {
 		plantId = plants[0].Id
 	}
-	return isExist, plantId, "", nil
+	return isExist, plantId, nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する

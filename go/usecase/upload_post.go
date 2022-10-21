@@ -8,6 +8,7 @@ import (
 
 type UploadPost struct {
 	PlantId   int      `json:"plant_id" db:"plant_id"`
+	Name      string   `json:"name" db:"name"`
 	Latitude  float64  `json:"latitude" db:"latitude"`
 	Longitude float64  `json:"longitude" db:"longitude"`
 	Hash      string   `json:"hash" db:"hash"`
@@ -17,14 +18,18 @@ type UploadPost struct {
 func InsertUploadPost(uploadPost UploadPost) error {
 	var err error
 
+	_, newId, err := JudgeAndInsert(uploadPost.Name)
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
 	// タグを追加する(あれば)
 	if len(uploadPost.Tags) > 0 {
-		err = SetTagsToPlant(uploadPost.PlantId, uploadPost.Tags)
+		err = SetTagsToPlant(newId, uploadPost.Tags)
 		if err != nil {
 			return errors.ErrorWrap(err)
 		}
 	}
-
+	uploadPost.PlantId = newId
 	// database層に渡す
 	err = DbUploadPost.InsertUploadPost(uploadPost)
 	if err != nil {
