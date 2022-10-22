@@ -1,27 +1,45 @@
+import 'package:app/local_plant/local_plant.dart';
 import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'search/search.dart';
 import 'test/test.dart';
+import 'upload/upload.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import '../location/provider.dart';
+import 'package:provider/provider.dart';
+import '../map/map_page.dart';
 
 Future main() async {
   await dotenv.load(fileName: ".env").then((value) {
+    Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     WidgetsFlutterBinding.ensureInitialized();
-    init_notification();
-    runApp(const MyApp());
+
+    runApp(MyApp());
   });
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final LocationProvider locationProvider = LocationProvider();
+  MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LocationProvider>(
+            create: (context) => locationProvider,
+          ),
+        ],
+        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -47,8 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
         label: 'Home',
       ),
       BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: '一覧',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.map),
+        label: 'マップ',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.add),
+        label: 'アップロード',
+      ),
+      BottomNavigationBarItem(
         icon: Icon(Icons.search),
-        label: 'Search',
+        label: '検索',
       ),
     ];
   }
@@ -62,10 +92,16 @@ class _MyHomePageState extends State<MyHomePage> {
           // ページのリスト
           children: <Widget>[
             TestPage(),
+            LocalPlantPage(),
+            MapPage(),
+            UploadPage(),
             SearchPage(),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.white,
+          backgroundColor: Color.fromARGB(255, 81, 180, 85),
           items: BottomNavItems(),
           // メニュータップ時の処理
           onTap: (index) {

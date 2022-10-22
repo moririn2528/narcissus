@@ -5,9 +5,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // ウィジェット間でデータを共有するためのクラス
 class SearchProvider with ChangeNotifier {
-  List<String> suggested_tags = [];
-  List<String> fetched_tags = [];
-  List<String> keep_tags = [];
+  List<dynamic> suggested_tags = [];
+  List<dynamic> fetched_tags = [];
+  List<dynamic> keep_tags = [];
   TextEditingController fieldController = new TextEditingController(text: '');
 
   SearchProvider() {
@@ -20,9 +20,7 @@ class SearchProvider with ChangeNotifier {
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       fetched_tags = [];
-      for (var v in data) {
-        fetched_tags.add(v["name"]);
-      }
+      fetched_tags = data;
       notifyListeners();
       return data;
     } else {
@@ -42,8 +40,9 @@ class SearchProvider with ChangeNotifier {
   suggestion() {
     if (fieldController.text.isNotEmpty) {
       suggested_tags = fetched_tags
-          .where((tag) => tag.toString().contains(fieldController.text))
+          .where((tag) => tag["name"].toString().contains(fieldController.text))
           .toList();
+
       notifyListeners();
     } else {
       suggested_tags = [];
@@ -52,14 +51,14 @@ class SearchProvider with ChangeNotifier {
   }
 
 // 選ばれたタグを保持する
-  addtag(String tag) {
+  addtag(tag) {
     keep_tags.add(tag);
     notifyListeners();
   }
 
 // 選ばれたタグを保持から外す
-  removetag(String tag) {
-    keep_tags.remove(tag);
+  removetag(int index) {
+    keep_tags.removeAt(index);
     notifyListeners();
   }
 }

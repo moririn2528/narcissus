@@ -24,23 +24,23 @@ class _TestPageState extends State<TestPage> {
         body: Column(
           children: [
             Text("http://${dotenv.get('API_IP')}/api/plant"),
-            FutureBuilder(
-              future: fetchTest().then((value) => value, onError: (e) {
-                print(e);
-              }),
-              builder: (context, snapshot) => snapshot.hasData
-                  ? ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: snapshot.data?.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(snapshot.data?[index]["name"]),
-                          subtitle: Text(snapshot.data?[index]["url"]),
-                        );
-                      },
-                    )
-                  : Center(child: CircularProgressIndicator()),
-            ),
+            // FutureBuilder(
+            //   future: fetchTest().then((value) => value, onError: (e) {
+            //     print(e);
+            //   }),
+            //   builder: (context, snapshot) => snapshot.hasData
+            //       ? ListView.builder(
+            //           shrinkWrap: true,
+            //           itemCount: snapshot.data?.length,
+            //           itemBuilder: (context, index) {
+            //             return ListTile(
+            //               title: Text(snapshot.data?[index]["name"]),
+            //               subtitle: Text(snapshot.data?[index]["url"]),
+            //             );
+            //           },
+            //         )
+            //       : Center(child: CircularProgressIndicator()),
+            // ),
             MultiProvider(
                 providers: [
                   ChangeNotifierProvider<LocationProvider>(
@@ -55,11 +55,21 @@ class _TestPageState extends State<TestPage> {
             OutlinedButton(
                 onPressed: () => notifyPlant(locationProvider.position),
                 child: Text("近くの植物を探す")),
-            NetworkPicturesListView(imageUrls: [
-              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "つくし"],
-              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "もみじ", "とても綺麗"],
-              ["https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg", "おはな"]
-            ])
+            //   NetworkPicturesListView(imageUrls: [
+            //     [
+            //       "https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg",
+            //       "つくし"
+            //     ],
+            //     [
+            //       "https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg",
+            //       "もみじ",
+            //       "とても綺麗"
+            //     ],
+            //     [
+            //       "https://storage.googleapis.com/narcissus-364913.appspot.com/upload-figure/mugwort.jpg",
+            //       "おはな"
+            //     ]
+            //   ])
           ],
         ));
   }

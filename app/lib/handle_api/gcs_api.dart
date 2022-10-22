@@ -1,11 +1,16 @@
-import 'package:gcloud/storage.dart';
-import 'package:googleapis_auth/auth_io.dart' as auth;
+// TODO
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> upload_to_gcs(image, hash) async {
-  // Initialize the gcs service client
-  final client = await auth.clientViaMetadataServer();
-  final storage = Storage(client, "D2202");
-  final b = storage.bucket('test-bucket');
-  b.writeBytes(hash, image);
-  // Upload image to GS bucket
+  final storage = FirebaseStorage.instanceFor(bucket: dotenv.get("GCS_IP"));
+  final ref = storage.ref().child("upload-figure/${hash}.jpg");
+  await ref.putFile(image);
+}
+
+Future<void> delete_from_gcs(hash) async {
+  await Future.delayed(Duration(seconds: 10));
+  final storage = FirebaseStorage.instanceFor(bucket: dotenv.get("GCS_IP"));
+  final ref = storage.ref().child("upload-figure/${hash}.jpg");
+  await ref.delete();
 }

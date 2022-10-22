@@ -188,7 +188,7 @@ func (*DatabasePlant) IsPlantExist(name string) (bool, int, error) {
 	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
 	err := db.Select(&plants, query)
 	if err != nil {
-		return false, -1, errors.ErrorWrap(err)
+		return false, -1, "", errors.ErrorWrap(err)
 	}
 
 	isExist := len(plants) > 0
@@ -196,7 +196,7 @@ func (*DatabasePlant) IsPlantExist(name string) (bool, int, error) {
 	if isExist {
 		plantId = plants[0].Id
 	}
-	return isExist, plantId, nil
+	return isExist, plantId, "", nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する

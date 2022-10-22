@@ -1,7 +1,10 @@
+import 'package:app/handle_api/handle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'result.dart';
+import 'dart:developer';
 
 Future main() async {
   await dotenv.load(fileName: ".env");
@@ -88,7 +91,20 @@ class SearchBar extends StatelessWidget {
                   textInputAction: TextInputAction.search,
                   // 検索ボタンの挙動を指定する関数
                   onSubmitted: (value) {
-                    print("searching");
+                    final List<int> ids = [];
+                    for (var i = 0; i < searchProvider.keep_tags.length; i++) {
+                      ids.add(searchProvider.keep_tags[i]["id"]);
+                    }
+
+                    searchPlant(ids).then((value) {
+                      log(value.toString());
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              // TODO　ナビゲートして検索結果を表示する
+                              builder: (context) =>
+                                  ResultPage(imageUrls: value)));
+                    });
                   },
                   // 入力が変わった際に実行される関数
                   onChanged: (value) {
@@ -123,7 +139,7 @@ class Suggestions extends StatelessWidget {
         // 各タグの表示
         return Card(
             child: ListTile(
-          title: Text(searchProvider.suggested_tags[index]),
+          title: Text(searchProvider.suggested_tags[index]["name"]),
           // タグをタップした際の挙動
           onTap: () {
             searchProvider.addtag(searchProvider.suggested_tags[index]);
@@ -162,7 +178,7 @@ class Keep extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(searchProvider.keep_tags[index]),
+                      Text(searchProvider.keep_tags[index]['name']),
                       IconButton(
                         icon: Icon(
                           Icons.close,
@@ -170,8 +186,7 @@ class Keep extends StatelessWidget {
                         ),
                         // 削除ボタンを押した際の挙動
                         onPressed: () {
-                          searchProvider
-                              .removetag(searchProvider.keep_tags[index]);
+                          searchProvider.removetag(index);
                         },
                       ),
                     ],
