@@ -67,10 +67,10 @@ class _MyHomePageState extends State<MyHomePage> {
         icon: Icon(Icons.map),
         label: 'マップ',
       ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.add),
-        label: 'アップロード',
-      ),
+      // BottomNavigationBarItem(
+      //   icon: Icon(Icons.add),
+      //   label: 'アップロード',
+      // ),
       BottomNavigationBarItem(
         icon: Icon(Icons.search),
         label: '検索',
@@ -88,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             LocalPlantPage(),
             MapPage(),
-            UploadPage(),
+            // UploadPage(),
             SearchPage(),
           ],
         ),
