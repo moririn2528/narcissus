@@ -184,19 +184,19 @@ func (*DatabasePlant) IsPlantExist(name string) (bool, int, error) {
 	// 英語名から日本語名に変換する 暫定処理
 	// query := "SELECT name FROM plant_names WHERE name = " + strconv.Quote(name)
 	// plantテーブルにあるかチェックする
-	var plants []usecase.Plant
+	var plants []int
 	query := "SELECT id FROM plant WHERE name = " + strconv.Quote(name)
 	err := db.Select(&plants, query)
 	if err != nil {
-		return false, -1, "", errors.ErrorWrap(err)
+		return false, -1, errors.ErrorWrap(err)
 	}
 
 	isExist := len(plants) > 0
 	plantId := -1
 	if isExist {
-		plantId = plants[0].Id
+		plantId = plants[0]
 	}
-	return isExist, plantId, "", nil
+	return isExist, plantId, nil
 }
 
 // 植物idとタグ名のスライスを渡すと、該当する植物にタグを追加する
@@ -233,6 +233,9 @@ func (*DatabasePlant) SetTagsToPlant(id int, tagNames []string) error {
 		values = append(values, TagAndPlantID{
 			PlantId: id,
 			TagId:   t.Id})
+	}
+	if len(values) == 0 {
+		return nil
 	}
 	_, err = db.NamedExec(query_main, values)
 	if err != nil {
