@@ -15,7 +15,7 @@ BEGIN
     UPDATE plant SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-INSERT INTO plant(name,detail,rarity) VALUES ("hoge","すごく綺麗", 0),("piyo","とてもきれい", 1);
+-- INSERT INTO plant(name,detail,rarity) VALUES ("hoge","すごく綺麗", 0),("piyo","とてもきれい", 1);
 
 -- タグ情報を格納するテーブル
 CREATE TABLE tag(
@@ -36,7 +36,7 @@ CREATE TABLE plant_tag(
 	UNIQUE(plant_id, tag_id)
 );
 
-INSERT INTO plant_tag(plant_id,tag_id) VALUES (1,1),(1,2),(2,2);
+-- INSERT INTO plant_tag(plant_id,tag_id) VALUES (1,1),(1,2),(2,2);
 
 -- 投稿を保存するテーブル
 CREATE TABLE upload_post(
@@ -51,13 +51,13 @@ CREATE TABLE upload_post(
 
 -- 位置情報から近いやつを取ってくるためのテストデータ
 
-INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES
+/*INSERT INTO upload_post(plant_id, latitude, longitude, hash) VALUES
 (1, 35.02527355160815, 135.77870285267127, "hash1"), -- 百万遍付近
 (2, 35.02498254430388, 135.77890210637494, "hash2"), -- 百万遍付近
 (1, 35.027641696798966, 135.7837294039685, "hash3"), -- 総合研究7号館
 (2, 34.98743999181396, 135.75932937378468, "hash4"), -- 京都タワー
 (1, 35.011490834291145, 135.76798684721498, "hash5"), -- 京都市役所
-(1, 35.0303004, 135.7911536, "home");
+(1, 35.0303004, 135.7911536, "home");*/
 
 -- 植物の日本語名と英語名を関連付けるテーブル
 CREATE TABLE plant_names(
@@ -68,9 +68,9 @@ CREATE TABLE plant_names(
 );
 
 -- テストデータ 本当はnameは日本語名だが今はサンプルなのでhogeとか
-INSERT INTO plant_names(name,english_name) VALUES
+/*INSERT INTO plant_names(name,english_name) VALUES
 ("hoge","hoge plant"),
-("piyo","piyo plant");
+("piyo","piyo plant");*/
 
 -- 植物名を英語から日本語に変換
 -- CREATE TABLE plant_translate(
