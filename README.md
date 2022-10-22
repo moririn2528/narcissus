@@ -1,6 +1,7 @@
 # Narcissus
 
-[![IMAGE ALT TEXT HERE](https://jphacks.com/wp-content/uploads/2022/08/JPHACKS2022_ogp.jpg)](https://www.youtube.com/watch?v=LUPQFB4QyVo)
+![image](https://user-images.githubusercontent.com/49509576/197310171-ac19d9a6-8fbe-4f0d-8fd8-dbc96097d56e.png)
+
 
 ## 製品概要
 
@@ -21,6 +22,7 @@
 #### 1. 特長 1
 
 現在の位置情報から、近くにある植物を推薦する！
+
 
 #### 2. 特長 2
 
