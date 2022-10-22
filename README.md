@@ -1,6 +1,7 @@
 # Narcissus
 
-![image](https://user-images.githubusercontent.com/49509576/197310171-ac19d9a6-8fbe-4f0d-8fd8-dbc96097d56e.png)
+
+<img width="800" alt="2022-10-22 (3)" src="https://user-images.githubusercontent.com/49509576/197310925-4d14daf4-fd47-42d8-9ec4-b52893ba04a1.png">
 
 
 ## 製品概要
