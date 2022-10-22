@@ -50,22 +50,19 @@ class MapPageState extends State<MapPage> {
 
   void update_list() async {
     locationProvider.updatePosition();
-    getNearPlant(locationProvider.position).then((value) {
-      setState(() {
-        // TODO
-        // plants = value; とってきた情報をMapAndPostsに渡す形に変える
-        List<UploadPost> posts = [];
-        for(var v in value){
-          posts.add(UploadPost(
-              name: v["name"],
-              url: v["url"],
-              latitude: v["latitude"],
-              longitude: v["longitude"],
-              detail: v["detail"]
-          ));
-        }
-        plants = posts;
-      });
+    await getNearPlant(locationProvider.position).then((value) {
+      // TODO
+      // plants = value; とってきた情報をMapAndPostsに渡す形に変える
+      List<UploadPost> posts = [];
+      for (var v in value) {
+        posts.add(UploadPost(
+            name: v["name"],
+            url: v["url"],
+            latitude: v["latitude"],
+            longitude: v["longitude"],
+            detail: v["detail"]));
+      }
+      plants = posts;
     });
   }
 }

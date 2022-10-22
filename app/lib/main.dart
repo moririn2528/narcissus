@@ -17,7 +17,6 @@ Future main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     WidgetsFlutterBinding.ensureInitialized();
-
     runApp(MyApp());
   });
 }
@@ -62,10 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return [
       BottomNavigationBarItem(
         icon: Icon(Icons.home),
-        label: 'Home',
-      ),
-      BottomNavigationBarItem(
-        icon: Icon(Icons.home),
         label: '一覧',
       ),
       BottomNavigationBarItem(
@@ -91,7 +86,6 @@ class _MyHomePageState extends State<MyHomePage> {
           onPageChanged: (index) => setState(() => _page = index),
           // ページのリスト
           children: <Widget>[
-            TestPage(),
             LocalPlantPage(),
             MapPage(),
             UploadPage(),
