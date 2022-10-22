@@ -37,9 +37,12 @@ Future<String> uploadImage(image, hash) async {
 // TODO
 Future<dynamic> sendVisionAI(String hash) async {
   Future.delayed(Duration(seconds: 3));
-
-  final resp = await http.get(Uri.parse(
-      'http://${dotenv.get('API_IP')}/api/plant_identify?hash=${hash}'));
-  log(resp.body.toString() + "sendVisionAI");
-  return json.decode(resp.body);
+  var data;
+  http.Response response;
+  await http
+      .get(Uri.parse(
+          'http://${dotenv.get('API_IP')}/api/plant_identify?hash=${hash}'))
+      .then((value) => {data = jsonDecode(value.body)});
+  log(data.toString());
+  return data;
 }

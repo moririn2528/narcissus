@@ -37,18 +37,17 @@ class UploadPost {
         url: json['url'],
         latitude: json['latitude'],
         longitude: json['longitude'],
-        detail: json['detail']
-    );
+        detail: json['detail']);
   }
 }
 
 class UploadInfo {
-  List<String> candidates = [];
+  List candidates = [];
   String name;
-  final String hash;
+  String hash;
   File image = File("/assets/images/default.png");
-  final double latitude;
-  final double longitude;
+  double latitude;
+  double longitude;
   List<String> tags;
 
   UploadInfo(

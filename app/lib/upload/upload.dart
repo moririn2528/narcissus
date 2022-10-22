@@ -158,7 +158,7 @@ Future<Widget> getImageFromLibrary() async {
       final candidates = (await sendVisionAI(hash))["identities"];
       log("実行された3");
       info = UploadInfo(
-          candidates: candidates,
+          candidates: candidates["identities"],
           name: name,
           hash: hash,
           image: image,
