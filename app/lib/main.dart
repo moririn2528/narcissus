@@ -17,6 +17,7 @@ Future main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     WidgetsFlutterBinding.ensureInitialized();
+
     runApp(MyApp());
   });
 }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:app/handle_api/gcs_api.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -27,16 +28,21 @@ Future<void> upload_post(UploadInfo info) async {
 }
 
 // 画像のアップロードをする関数
-String uploadImage(image, hash) {
-  upload_to_gcs(image, hash);
+Future<String> uploadImage(image, hash) async {
+  await upload_to_gcs(image, hash);
   return hash;
 }
 
 // VisionAIにurlを投げて名前を返す
 // TODO
-Future<List<String>> sendVisionAI(hash) async {
-  String url =
-      "https://${dotenv.get('API_IP')}/api/plant_identify?fig_name=${hash}";
-  http.Response resp = await http.get(Uri.parse(url));
-  return json.decode(resp.body);
+Future<dynamic> sendVisionAI(String hash) async {
+  Future.delayed(Duration(seconds: 3));
+
+  final resp = await http.get(Uri.parse(
+      'http://${dotenv.get('API_IP')}/api/plant_identify?hash=${hash}'));
+  if (resp.statusCode != 200) {
+    throw Exception('VisionAIの呼び出しに失敗しました');
+  } else {
+    return json.decode(resp.body);
+  }
 }

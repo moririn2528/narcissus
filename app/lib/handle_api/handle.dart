@@ -3,6 +3,7 @@ import 'Dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'dart:developer';
 
 Future<List<dynamic>> fetchTest() async {
   late List data = [];
@@ -49,15 +50,15 @@ Future<List> getTags() async {
   }
 }
 
-Future<List> searchPlant(List<String> tag) async {
+Future<List> searchPlant(List<int> tag) async {
   final String url = 'http://${dotenv.get('API_IP')}/api/search';
   List<dynamic> plants = [];
   final Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
   };
-  final Map<String, dynamic> body = {'tag': tag};
+  final Map<String, dynamic> body = {'optional_tags': tag};
   http.Response response;
-  http
+  await http
       .post(
     Uri.parse(url),
     headers: headers,
@@ -67,6 +68,6 @@ Future<List> searchPlant(List<String> tag) async {
     response = value;
     plants = jsonDecode(response.body);
   });
-
+  log(plants.toString());
   return plants;
 }
