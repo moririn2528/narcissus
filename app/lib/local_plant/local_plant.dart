@@ -44,7 +44,7 @@ class LocalPlantPageState extends State<LocalPlantPage> {
 
   void update_list() async {
     locationProvider.updatePosition();
-    getNearPlant(locationProvider.position).then((value) {
+    getNearPlant(await determinePosition()).then((value) {
       setState(() {
         plants = value;
       });

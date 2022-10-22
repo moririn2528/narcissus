@@ -40,9 +40,6 @@ Future<dynamic> sendVisionAI(String hash) async {
 
   final resp = await http.get(Uri.parse(
       'http://${dotenv.get('API_IP')}/api/plant_identify?hash=${hash}'));
-  if (resp.statusCode != 200) {
-    throw Exception('VisionAIの呼び出しに失敗しました');
-  } else {
-    return json.decode(resp.body);
-  }
+  log(resp.body.toString() + "sendVisionAI");
+  return json.decode(resp.body);
 }
