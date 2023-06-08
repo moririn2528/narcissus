@@ -11,5 +11,8 @@ services:
             - ${PORT}:${PORT}
         volumes:
             - type: bind
-              source: ./log/go.log
-              target: /api/go/debug.log
+              source: ./log
+              target: /api/log
+            - type: bind
+              source: ./gcloud.json
+              target: /api/gcloud.json

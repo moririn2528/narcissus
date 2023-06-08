@@ -20,7 +20,7 @@ func plantIdentify(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 
-	plant_identity, err = usecase.TranslateAndJoin(plant_identity)
+	plant_identity, err = usecase.TranslateAndJoin(req.Context(), plant_identity)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"io"
 	"log"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 	"time"
 
 	"narcissus/communicate"
-	"narcissus/database"
+	"narcissus/nosql"
 	"narcissus/usecase"
 
 	"github.com/joho/godotenv"
@@ -36,17 +37,17 @@ func init() {
 		}
 	}
 
-	database.Init()
+	nosql.Init(context.Background())
 }
 
 func main() {
-	defer database.Close()
+	defer nosql.Close()
 
-	usecase.DbPlant = &database.DatabasePlant{}
-	usecase.DbTag = &database.DatabaseTag{}
-	usecase.DbNear = &database.DatabaseNear{}
-	usecase.DbUploadPost = &database.DatabaseUploadPost{}
-	usecase.DbPlantTranslate = &database.DatabasePlantTranslate{}
+	usecase.DbPlant = &nosql.DatabasePlant{}
+	usecase.DbTag = &nosql.DatabaseTag{}
+	usecase.DbNear = &nosql.DatabaseNear{}
+	usecase.DbUploadPost = &nosql.DatabaseUploadPost{}
+	usecase.DbPlantTranslate = &nosql.DatabasePlantTranslate{}
 
 	http.HandleFunc("/api/plant", communicate.PlantHandle)
 	http.HandleFunc("/api/tag", communicate.TagHandle)

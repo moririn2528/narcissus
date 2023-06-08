@@ -11,7 +11,7 @@ import (
 func listTag(w http.ResponseWriter, req *http.Request) error {
 	var err error
 	// DBから植物情報（tags）取得
-	tags, err := usecase.ListTag()
+	tags, err := usecase.ListTag(req.Context())
 
 	if err != nil {
 		return errors.ErrorWrap(err)

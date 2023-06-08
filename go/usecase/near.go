@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"narcissus/errors"
 	"time"
 )
@@ -15,8 +16,8 @@ type Near struct {
 	TimeStamp time.Time `json:"timestamp" db:"timestamp"`
 }
 
-func ListNear(latitude float64, longitude float64, length float64) ([]Near, error) {
-	nears, err := DbNear.ListNear(latitude, longitude, length)
+func ListNear(ctx context.Context, latitude float64, longitude float64, length float64) ([]Near, error) {
+	nears, err := DbNear.ListNear(ctx, latitude, longitude, length)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}

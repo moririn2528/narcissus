@@ -20,7 +20,7 @@ func insertUploadPost(w http.ResponseWriter, req *http.Request) error {
 	}
 
 	// usecase層へ渡す
-	err = usecase.InsertUploadPost(data)
+	err = usecase.InsertUploadPost(req.Context(), data)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}

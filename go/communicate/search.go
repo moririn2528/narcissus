@@ -22,7 +22,7 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 	// DBから植物情報（plants）取得
-	plants, err := usecase.SearchPlant(data.Necessary_tags, data.Optional_tags)
+	plants, err := usecase.SearchPlant(req.Context(), data.Necessary_tags, data.Optional_tags)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
@@ -31,7 +31,7 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 
 	for _, v := range plants {
 		url := usecase.HashToUrl(v.Hash)
-		plants_url = append(plants_url, usecase.PlantUrl{Id: v.Id, Name: v.Name, Url: url, Detail: v.Detail})
+		plants_url = append(plants_url, usecase.PlantUrl{Plant: v.Plant, Url: url})
 	}
 
 	// hash -> url 変換済みplantsの型

@@ -36,7 +36,7 @@ func ListPlantName(img_path string) ([]string, error) {
 	return en_names, nil
 }
 
-func TranslateAndJoin(identities []string) ([]string, error) {
+func TranslateAndJoin(ctx context.Context, identities []string) ([]string, error) {
 	type TranslateResponse struct {
 		Code int      `json:"code"`
 		Text []string `json:"text"`
@@ -91,7 +91,7 @@ func TranslateAndJoin(identities []string) ([]string, error) {
 	}
 
 	// 登録されている植物名があれば上に持ってくる
-	result, err = DbPlantTranslate.SearchPlantName(result)
+	result, err = DbPlantTranslate.SearchPlantName(ctx, result)
 	if err != nil {
 		return nil, errors.ErrorWrap(err)
 	}

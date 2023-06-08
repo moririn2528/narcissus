@@ -59,7 +59,7 @@ func listNear(w http.ResponseWriter, req *http.Request) error {
 	}
 
 	// 範囲内にある投稿と植物のリストを受け取る
-	nears, err := usecase.ListNear(latitude, longitude, length)
+	nears, err := usecase.ListNear(req.Context(), latitude, longitude, length)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}

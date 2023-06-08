@@ -11,7 +11,7 @@ import (
 func listPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
 	// DBから植物情報（plants）取得
-	plants, err := usecase.ListPlant()
+	plants, err := usecase.ListPlant(req.Context())
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
@@ -24,7 +24,10 @@ func listPlant(w http.ResponseWriter, req *http.Request) error {
 
 	for _, v := range plants {
 		url := usecase.HashToUrl(v.Hash)
-		plants_url = append(plants_url, usecase.PlantUrl{Id: v.Id, Name: v.Name, Url: url, Detail: v.Detail})
+		plants_url = append(plants_url, usecase.PlantUrl{
+			Plant: v.Plant,
+			Url:   url,
+		})
 	}
 
 	// hash -> url 変換済みplantsの型
