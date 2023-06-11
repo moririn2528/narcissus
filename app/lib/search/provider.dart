@@ -16,7 +16,7 @@ class SearchProvider with ChangeNotifier {
 
   Future<List> fetchtags() async {
     final response =
-        await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/tag'));
+        await http.get(Uri.parse('${dotenv.get('API_URI')}/api/tag'));
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       fetched_tags = [];

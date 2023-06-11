@@ -1,14 +1,13 @@
 package communicate
 
 import (
-	"log"
 	"net/http"
 
 	"narcissus/errors"
 	"narcissus/usecase"
 )
 
-func listPlant(w http.ResponseWriter, req *http.Request) error {
+func ListPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
 	// DBから植物情報（plants）取得
 	plants, err := usecase.ListPlant(req.Context())
@@ -36,26 +35,4 @@ func listPlant(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 	return nil
-}
-
-func PlantHandle(w http.ResponseWriter, req *http.Request) {
-	var err error
-	switch req.Method {
-	case "GET":
-		err = listPlant(w, req)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if err == nil {
-		return
-	}
-	my_err, ok := err.(*errors.MyError)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Print("wrap error")
-		return
-	}
-	w.WriteHeader(my_err.GetCode())
-	log.Print(my_err.Error())
 }

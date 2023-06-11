@@ -8,6 +8,7 @@ import (
 )
 
 func createInitData(ctx context.Context) {
+	logger.Info("create init data in firestore")
 	tags := []usecase.Tag{
 		{Id: 11, Name: "春"},
 		{Id: 12, Name: "夏"},
@@ -525,5 +526,8 @@ func createInitData(ctx context.Context) {
 			}
 		}
 	}
+	ref := client.Collection("init_finished").Doc("hoge")
+	bulk.Set(ref, map[string]bool{"init_finished": true})
+
 	bulk.End()
 }

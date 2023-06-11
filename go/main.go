@@ -9,13 +9,19 @@ import (
 	"time"
 
 	"narcissus/communicate"
+	"narcissus/library/logging"
 	"narcissus/nosql"
 	"narcissus/usecase"
 
 	"github.com/joho/godotenv"
 )
 
+var (
+	logger = logging.NewLogger()
+)
+
 func init() {
+	logger.Info("init main")
 	const location = "Asia/Tokyo"
 	f, err := os.Create("debug.log")
 	if err != nil {
@@ -49,20 +55,32 @@ func main() {
 	usecase.DbUploadPost = &nosql.DatabaseUploadPost{}
 	usecase.DbPlantTranslate = &nosql.DatabasePlantTranslate{}
 
-	http.HandleFunc("/api/plant", communicate.PlantHandle)
-	http.HandleFunc("/api/tag", communicate.TagHandle)
-	http.HandleFunc("/api/near", communicate.NearHandle)
-	http.HandleFunc("/api/post/upload", communicate.UploadPostHandle)
+	http.HandleFunc("/api/plant", communicate.HttpHandler{
+		Get:  communicate.ListPlant,
+		Post: nil,
+	}.ServeHTTP)
+	http.HandleFunc("/api/tag", communicate.HttpHandler{
+		Get:  communicate.ListTag,
+		Post: nil,
+	}.ServeHTTP)
+	http.HandleFunc("/api/near", communicate.HttpHandler{
+		Get:  communicate.ListNear,
+		Post: nil,
+	}.ServeHTTP)
+	http.HandleFunc("/api/post/upload", communicate.HttpHandler{
+		Get:  nil,
+		Post: communicate.CreateUploadPost,
+	}.ServeHTTP)
+	http.HandleFunc("/api/search", communicate.HttpHandler{
+		Get:  communicate.SearchPlant,
+		Post: nil,
+	}.ServeHTTP)
+	http.HandleFunc("/api/plant_identify", communicate.HttpHandler{
+		Get:  communicate.ListPlantIdentify,
+		Post: nil,
+	}.ServeHTTP)
 
-	http.HandleFunc("/api/search", communicate.SearchHandle)
-
-	http.HandleFunc("/api/plant_identify", communicate.PlantIdentifyHandle)
-
-	// 画像を配置する静的フォルダ
-	// 参考文献：https://github.com/golang/go/issues/50638
-	http.Handle("/figure/", http.FileServer(http.Dir(".")))
-
-	log.Print("start")
+	logger.Info("server start")
 	port, ok := os.LookupEnv("PORT")
 	if !ok {
 		port = "80"

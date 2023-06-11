@@ -9,7 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // TODO
 Future<void> upload_post(UploadInfo info) async {
-  String url = "https://${dotenv.get('API_IP')}/api/post/upload";
+  String url = "${dotenv.get('API_URI')}/api/post/upload";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode({
     'name': info.name,
@@ -40,8 +40,8 @@ Future<dynamic> sendVisionAI(String hash) async {
   var data;
   http.Response response;
   await http
-      .get(Uri.parse(
-          'http://${dotenv.get('API_IP')}/api/plant_identify?hash=${hash}'))
+      .get(
+          Uri.parse('${dotenv.get('API_URI')}/api/plant_identify?hash=${hash}'))
       .then((value) => {data = jsonDecode(value.body)});
   log(data.toString());
   return data;

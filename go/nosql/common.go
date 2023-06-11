@@ -15,7 +15,7 @@ const (
 
 var (
 	client *firestore.Client
-	logger *logging.Logger = logging.NewLogger()
+	logger logging.Logger = logging.NewLogger()
 )
 
 func Init(ctx context.Context) {
@@ -31,6 +31,11 @@ func Init(ctx context.Context) {
 		return
 	}
 
+	itr := client.Collection("init_finished").Documents(ctx)
+	_, err = itr.Next()
+	if err == nil {
+		return
+	}
 	createInitData(ctx)
 }
 

@@ -22,21 +22,29 @@ func (*DatabaseNear) ListNear(ctx context.Context, latitude float64, longitude f
 	var longitude_min float64 = longitude - length
 	var longitude_max float64 = longitude + length
 
+	logger.Debugf("latitude_min: %v, latitude_max: %v, longitude_min: %v, longitude_max: %v", latitude_min, latitude_max, longitude_min, longitude_max)
 	itr := client.CollectionGroup("uploads").Where("longitude", ">=", longitude_min).Where("longitude", "<=", longitude_max).Documents(ctx)
 	used := map[int]int{}
+	cnt := 0
 	for {
 		doc, err := itr.Next()
 		if err != nil {
 			break
 		}
+		cnt++
 		var uploadPost UploadPost
-		doc.DataTo(&uploadPost)
+		err = doc.DataTo(&uploadPost)
+		if err != nil {
+			logger.Warning(err)
+			continue
+		}
 		if uploadPost.Latitude < latitude_min || latitude_max < uploadPost.Latitude {
 			continue
 		}
 		ref := doc.Ref.Parent.Parent
 		id, err := strconv.Atoi(ref.ID)
 		if err != nil {
+			logger.Warning(err)
 			continue
 		}
 		_, ok := used[id]
@@ -51,6 +59,7 @@ func (*DatabaseNear) ListNear(ctx context.Context, latitude float64, longitude f
 			TimeStamp: uploadPost.UploadTime,
 		})
 	}
+	logger.Debugf("nears: %v, count: %v", nears, cnt)
 	min := func(a, b int) int {
 		if a < b {
 			return a
@@ -59,7 +68,11 @@ func (*DatabaseNear) ListNear(ctx context.Context, latitude float64, longitude f
 	}
 	for i := 0; i < len(nears); i += MAX_OR_QUERY {
 		a := min(i+MAX_OR_QUERY, len(nears))
-		itr := client.Collection("plant").Where("id", "in", nears[i:a]).Documents(ctx)
+		var ids []int
+		for j := i; j < a; j++ {
+			ids = append(ids, nears[j].Id)
+		}
+		itr := client.Collection("plant").Where("id", "in", ids).Documents(ctx)
 		for {
 			doc, err := itr.Next()
 			if err != nil {
