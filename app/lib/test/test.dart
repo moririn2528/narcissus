@@ -23,7 +23,7 @@ class _TestPageState extends State<TestPage> {
         ),
         body: Column(
           children: [
-            Text("http://${dotenv.get('API_IP')}/api/plant"),
+            Text("${dotenv.get('API_URI')}/api/plant"),
             // FutureBuilder(
             //   future: fetchTest().then((value) => value, onError: (e) {
             //     print(e);

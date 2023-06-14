@@ -1,28 +1,46 @@
 package communicate
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"narcissus/errors"
 	"narcissus/usecase"
 )
 
-func searchPlant(w http.ResponseWriter, req *http.Request) error {
+func getIdsFromForm(req *http.Request, key string) ([]int, error) {
+	var list []int
+	for _, s := range req.Form[key] {
+		arr := strings.Split(s, ",")
+		for _, v := range arr {
+			id, err := strconv.Atoi(v)
+			if err != nil {
+				return nil, errors.NewError(http.StatusBadRequest, "invalid id in "+key+" : "+v)
+			}
+			list = append(list, id)
+		}
+	}
+	return list, nil
+}
+
+func SearchPlant(w http.ResponseWriter, req *http.Request) error {
 	var err error
-	type SearchRequest struct {
-		Necessary_tags []int `json:"necessary_tags"`
-		Optional_tags  []int `json:"optional_tags"`
+	req.ParseForm()
+	necessary_tags, err := getIdsFromForm(req, "necessary_tags")
+	if err != nil {
+		return errors.ErrorWrap(err)
+	}
+	optional_tags, err := getIdsFromForm(req, "optional_tags")
+	if err != nil {
+		return errors.ErrorWrap(err)
 	}
 
-	var data SearchRequest
-	err = json.NewDecoder(req.Body).Decode(&data)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
 	// DBから植物情報（plants）取得
-	plants, err := usecase.SearchPlant(data.Necessary_tags, data.Optional_tags)
+	plants, err := usecase.SearchPlant(req.Context(), necessary_tags, optional_tags)
 	if err != nil {
 		return errors.ErrorWrap(err)
 	}
@@ -31,7 +49,7 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 
 	for _, v := range plants {
 		url := usecase.HashToUrl(v.Hash)
-		plants_url = append(plants_url, usecase.PlantUrl{Id: v.Id, Name: v.Name, Url: url, Detail: v.Detail})
+		plants_url = append(plants_url, usecase.PlantUrl{Plant: v.Plant, Url: url})
 	}
 
 	// hash -> url 変換済みplantsの型
@@ -40,26 +58,4 @@ func searchPlant(w http.ResponseWriter, req *http.Request) error {
 		return errors.ErrorWrap(err)
 	}
 	return nil
-}
-
-func SearchHandle(w http.ResponseWriter, req *http.Request) {
-	var err error
-	switch req.Method {
-	case "POST":
-		err = searchPlant(w, req)
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if err == nil {
-		return
-	}
-	my_err, ok := err.(*errors.MyError)
-	if !ok {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Print("wrap error")
-		return
-	}
-	w.WriteHeader(my_err.GetCode())
-	log.Print(my_err.Error())
 }

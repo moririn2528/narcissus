@@ -9,7 +9,7 @@ Future<List<dynamic>> fetchTest() async {
   late List data = [];
   try {
     final response =
-        await http.get(Uri.parse("http://${dotenv.get('API_IP')}/api/plant"));
+        await http.get(Uri.parse("${dotenv.get('API_URI')}/api/plant"));
     if (response.statusCode == 200) {
       data = json.decode(response.body);
     } else {
@@ -25,7 +25,7 @@ Future<List> getNearPlant(Position position, {double length = 1000}) async {
   var output = [];
   await http
       .get(Uri.parse(
-          'http://${dotenv.get('API_IP')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
+          '${dotenv.get('API_URI')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
       .then((value) {
     if (value.statusCode == 200) {
       final data = jsonDecode(value.body);
@@ -41,7 +41,7 @@ Future<List> getNearPlant(Position position, {double length = 1000}) async {
 
 Future<List> getTags() async {
   final response =
-      await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/tag'));
+      await http.get(Uri.parse('${dotenv.get('API_URI')}/api/tag'));
   if (response.statusCode == 200) {
     final List data = jsonDecode(response.body);
     return data;
@@ -51,19 +51,11 @@ Future<List> getTags() async {
 }
 
 Future<List> searchPlant(List<int> tag) async {
-  final String url = 'http://${dotenv.get('API_IP')}/api/search';
   List<dynamic> plants = [];
-  final Map<String, String> headers = {
-    'Content-Type': 'application/json; charset=UTF-8',
-  };
-  final Map<String, dynamic> body = {'optional_tags': tag};
   http.Response response;
   await http
-      .post(
-    Uri.parse(url),
-    headers: headers,
-    body: jsonEncode(body),
-  )
+      .get(Uri.parse(
+          '${dotenv.get('API_URI')}/api/search?optional_tags=${tag.join(",")}'))
       .then((value) {
     response = value;
     plants = jsonDecode(response.body);

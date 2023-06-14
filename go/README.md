@@ -69,3 +69,23 @@ GETでhashを送ると植物の名前候補が返ってくる
 ### 戻り値
 - is_empty 以下が空かどうか bool
 - identifies 植物の名前候補のリスト stringのリスト
+
+
+# 実行方法
+## docker compose
+- `narcissus/docker/local` で `docker compose up -d` 
+
+### 注意
+- `narcissus/docker/local` に .env ファイルが必要
+
+## cloud run
+- `narcissus/go` で `gcloud run deploy`、リージョンは us-west1、プロジェクト名は narcissus
+
+### 注意
+- `narcissus/go` に .env ファイルが必要、"PORT"は消す
+- バックエンドのURI: https://narcissus-flkhbeqpra-uw.a.run.app
+
+# .env ファイル
+- GOOGLE_APPLICATION_CREDENTIALS: IAM のサービスアカウントキーの場所
+- FIRESTORE_PROJECT_ID: google cloud でのプロジェクトID
+
