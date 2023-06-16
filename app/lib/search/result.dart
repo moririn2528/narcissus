@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../util/picturesListView.dart';
+import '../local_plant/plants.dart';
 
 class ResultPage extends StatefulWidget {
-  final List imageUrls;
+  final Plants imageUrls;
   ResultPage({required this.imageUrls});
   @override
   State<ResultPage> createState() => _ResultPageState();

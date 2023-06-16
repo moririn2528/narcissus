@@ -37,6 +37,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   # 地理情報の取得
   geolocator: ^9.0.2
+  location: ^4.2.0
   # タイムゾーンの取得
   timezone: ^0.9.0
   flutter_native_timezone: ^2.0.0
