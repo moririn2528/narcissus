@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'Dart:async';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:geolocator/geolocator.dart';
-import 'dart:developer';
+import 'package:location/location.dart';
+import 'package:app/local_plant/plants.dart';
 
 Future<List<dynamic>> fetchTest() async {
   late List data = [];
@@ -16,26 +16,27 @@ Future<List<dynamic>> fetchTest() async {
       throw Exception('Failed to load data');
     }
   } catch (err) {
-    print(err);
+    print("CLASS: HANDLE_API, FUNCTION: fetchTest");
   }
   return data;
 }
 
-Future<List> getNearPlant(Position position, {double length = 1000}) async {
-  var output = [];
-  await http
-      .get(Uri.parse(
-          '${dotenv.get('API_URI')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=${length}'))
-      .then((value) {
-    if (value.statusCode == 200) {
-      final data = jsonDecode(value.body);
-      if (data["IsEmpty"] == 0) {
-        output = data["Datas"];
-      }
+Future<Plants> getNearPlant(LocationData position,
+    {double length = 1000}) async {
+  http.Response response;
+  Plants output = Plants(plants_list: []);
+  try {
+    response = await http.get(Uri.parse(
+        'http://${dotenv.get('API_IP')}/api/near?latitude=${position.latitude}&longitude=${position.longitude}&length=$length'));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      output = Plants.fromJson(data["Datas"]);
+    } else {
+      throw Exception('Failed to load plants');
     }
-  }, onError: (e) {
-    print(e);
-  });
+  } catch (err) {
+    print("CLASS: HANDLE_API, FUNCTION: getNearPlant");
+  }
   return output;
 }
 
@@ -50,16 +51,30 @@ Future<List> getTags() async {
   }
 }
 
-Future<List> searchPlant(List<int> tag) async {
-  List<dynamic> plants = [];
+Future<Plants> searchPlant(List<int> tag) async {
+  String url = 'http://${dotenv.get('API_IP')}/api/search';
+  if (tag.length > 0) {
+    url += "?optional_tags=" + tag.join(',');
+  }
+  Plants plants = Plants(plants_list: []);
   http.Response response;
-  await http
-      .get(Uri.parse(
-          '${dotenv.get('API_URI')}/api/search?optional_tags=${tag.join(",")}'))
-      .then((value) {
-    response = value;
-    plants = jsonDecode(response.body);
-  });
-  log(plants.toString());
+  print(url);
+  try {
+    response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      if (data == null) {
+        return plants;
+      }
+      plants = Plants.fromJson(data);
+      print("Number of plants: ${plants.plants_list.length}");
+    } else {
+      print("CLASS: HANDLE_API, FUNCTION: searchPlant");
+      throw Exception('Failed to load plants');
+    }
+  } catch (err) {
+    print("CLASS: HANDLE_API, FUNCTION: searchPlant");
+    print(err);
+  }
   return plants;
 }

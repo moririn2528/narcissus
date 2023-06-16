@@ -1,7 +1,7 @@
 import 'package:app/notification/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../location/provider.dart';
+import '../location_state/provider.dart';
 import 'package:provider/provider.dart';
 import '../handle_api/handle.dart';
 import '../util/picturesListView.dart';

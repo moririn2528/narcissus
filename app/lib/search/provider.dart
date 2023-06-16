@@ -15,16 +15,21 @@ class SearchProvider with ChangeNotifier {
   }
 
   Future<List> fetchtags() async {
-    final response =
-        await http.get(Uri.parse('${dotenv.get('API_URI')}/api/tag'));
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      fetched_tags = [];
-      fetched_tags = data;
-      notifyListeners();
-      return data;
-    } else {
-      throw Exception('Failed to load tags');
+    try {
+      final response =
+          await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/tag'));
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        fetched_tags = [];
+        fetched_tags = data;
+        notifyListeners();
+        return data;
+      } else {
+        throw Exception('Failed to load tags');
+      }
+    } catch (err) {
+      print(err);
+      return [];
     }
   }
 

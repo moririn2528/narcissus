@@ -1,68 +1,107 @@
-import 'package:app/model.dart';
-import 'package:app/notification/notification.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../location/provider.dart';
-import 'package:provider/provider.dart';
-import '../handle_api/handle.dart';
-import '../util/picturesListView.dart';
-import '../location/location.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../location_state/location_state.dart';
+import 'package:app/local_plant/plants.dart';
 import 'map.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapPage extends StatefulWidget {
-  MapPage({Key? key}) : super(key: key);
+  final LocationState locationState;
+  MapPage({required this.locationState});
   @override
   State<MapPage> createState() => MapPageState();
 }
 
 class MapPageState extends State<MapPage> {
-  List<UploadPost> plants = [];
-  late LocationProvider locationProvider = LocationProvider();
+  Plants plants = Plants(plants_list: []);
+  late LatLng _center;
+  late GoogleMapController _controller;
+  var _isLoading = true;
+  late Set<Marker> _markers;
   @override
   Widget build(BuildContext context) {
-    locationProvider = Provider.of<LocationProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Local Plant'),
+        title: const Text('Map'),
       ),
-      body: Center(
-          child: plants.isEmpty
-              ? const Text('近くに植物がありません')
-              : MapAndPosts(
-                  latitude: locationProvider.position.latitude,
-                  longitude: locationProvider.position.longitude,
-                  uploadPosts: plants,
-                )),
+      body: Stack(
+        children: [
+          _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(),
+                )
+              : GoogleMap(
+                  onMapCreated: (controller) {
+                    _controller = controller;
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: _center,
+                    zoom: 15.0,
+                  ),
+                  markers: _markers,
+                  myLocationButtonEnabled: true,
+                  myLocationEnabled: true,
+                ),
+          // show your latitude and longitude
+          Positioned(
+            child: Container(
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("latitude: ${widget.locationState.position.latitude}, "),
+                  Text("longitude: ${widget.locationState.position.longitude}"),
+                ],
+              ),
+            ),
+          ),
+          // 左上に設定画面を開くボタンを設置
+          Positioned(
+            top: 50,
+            left: 10,
+            child: FloatingActionButton(
+              onPressed: () async {
+                await openAppSettings();
+              },
+              child: Icon(Icons.settings),
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "map",
         onPressed: () {
           update_list();
         },
         child: Icon(Icons.update),
+        // set position of button
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 
   @override
   void initState() {
-    super.initState();
     update_list();
+    plants.update_plants(widget.locationState.position);
+    Timer.periodic(const Duration(seconds: 5), (timer) {
+      update_list();
+    });
+    Future.delayed(const Duration(seconds: 7), () {
+      setState(() {
+        _center = LatLng(widget.locationState.position.latitude!,
+            widget.locationState.position.longitude!);
+        _isLoading = false;
+      });
+    });
   }
 
   void update_list() async {
-    locationProvider.updatePosition();
-    await getNearPlant(locationProvider.position).then((value) {
-      // TODO
-      // plants = value; とってきた情報をMapAndPostsに渡す形に変える
-      List<UploadPost> posts = [];
-      for (var v in value) {
-        posts.add(UploadPost(
-            name: v["name"],
-            url: v["url"],
-            latitude: v["latitude"],
-            longitude: v["longitude"],
-            detail: v["detail"]));
-      }
-      plants = posts;
+    setState(() {
+      plants.update_plants(widget.locationState.position);
+      _markers = plants.plants2markers(context);
+      print("map plants updated");
     });
   }
 }

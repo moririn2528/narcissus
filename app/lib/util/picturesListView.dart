@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:app/local_plant/plants.dart';
 
 // 画像のパスのリスト(imagePaths)を渡すと垂直に並べて一覧で表示するWidget
 class AssetPicturesListView extends StatelessWidget {
@@ -28,29 +29,23 @@ class AssetPicturesListView extends StatelessWidget {
 }
 
 // 画像のURLのリスト(imageUrls)を渡すと垂直に並べて一覧で表示するWidget
-// TODO
 class NetworkPicturesListView extends StatelessWidget {
   NetworkPicturesListView({Key? key, required this.imageUrls})
       : super(key: key);
-  final List imageUrls;
+  final Plants imageUrls;
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
         child: ListView.builder(
             shrinkWrap: true,
-            itemCount: imageUrls.length,
+            itemCount: imageUrls.plants_list.length,
             itemBuilder: (context, index) {
-              if (imageUrls[index].length == 2) {
+              {
                 return PictureCard(
-                    image: Image.network(imageUrls[index]["url"]),
-                    name: imageUrls[index]["name"],
-                    detail: "");
-              } else {
-                return PictureCard(
-                    image: Image.network(imageUrls[index]["url"]),
-                    name: imageUrls[index]["name"],
-                    detail: imageUrls[index]["detail"]);
+                    image: Image.network(imageUrls.plants_list[index].url),
+                    name: imageUrls.plants_list[index].name,
+                    detail: imageUrls.plants_list[index].detail);
               }
             }));
   }

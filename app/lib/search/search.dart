@@ -78,47 +78,90 @@ class SearchBar extends StatelessWidget {
     return Container(
         margin: EdgeInsets.only(top: Screenheight * 0.05),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(Icons.search, color: Colors.grey, size: 30.0),
-            SizedBox(
-              height: 30.0,
-              width: Screenwidth * 0.9,
-              child: Scaffold(
-                body: TextField(
-                  controller: fieldController,
-                  textInputAction: TextInputAction.search,
-                  // 検索ボタンの挙動を指定する関数
-                  onSubmitted: (value) {
-                    final List<int> ids = [];
-                    for (var i = 0; i < searchProvider.keep_tags.length; i++) {
-                      ids.add(searchProvider.keep_tags[i]["id"]);
-                    }
-
-                    searchPlant(ids).then((value) {
-                      log(value.toString());
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              // TODO　ナビゲートして検索結果を表示する
-                              builder: (context) =>
-                                  ResultPage(imageUrls: value)));
-                    });
-                  },
-                  // 入力が変わった際に実行される関数
-                  onChanged: (value) {
-                    searchProvider.suggestion();
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'タグ名を入力',
+            Expanded(
+              flex: 1,
+              child: Icon(
+                Icons.search,
+                color: Colors.grey,
+                size: 30.0,
+              ),
+            ),
+            Expanded(
+              flex: 8,
+              child: SizedBox(
+                height: 30.0,
+                child: Scaffold(
+                  body: TextField(
+                    controller: fieldController,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (value) {
+                      search_post(
+                        searchProvider.keep_tags,
+                        context,
+                        searchProvider,
+                      );
+                    },
+                    onChanged: (value) {
+                      searchProvider.suggestion();
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'タグ名を入力',
+                    ),
                   ),
                 ),
               ),
-            )
+            ),
+            Expanded(
+              flex: 1,
+              child: IconButton(
+                icon: Icon(
+                  Icons.send,
+                  size: 30.0,
+                  color: Colors.green,
+                ),
+                onPressed: () {
+                  search_post(
+                    searchProvider.keep_tags,
+                    context,
+                    searchProvider,
+                  );
+                },
+              ),
+            ),
           ],
         ));
   }
+}
+
+void search_post(
+    List<dynamic> ids, BuildContext context, SearchProvider searchProvider) {
+  final List<int> ids = [];
+  for (var i = 0; i < searchProvider.keep_tags.length; i++) {
+    ids.add(searchProvider.keep_tags[i]["id"]);
+  }
+  searchPlant(ids).then((value) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            // ナビゲートして検索結果を表示する
+            builder: (context) => ResultPage(imageUrls: value)));
+  }, onError: (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('検索に失敗しました'),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      ),
+    );
+  });
 }
 
 // タグ候補の提案
