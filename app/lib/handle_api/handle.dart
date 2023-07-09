@@ -9,7 +9,7 @@ Future<List<dynamic>> fetchTest() async {
   late List data = [];
   try {
     final response =
-        await http.get(Uri.parse("${dotenv.get('API_URI')}/api/plant"));
+        await http.get(Uri.parse("${dotenv.get('API_IP')}/api/plant"));
     if (response.statusCode == 200) {
       data = json.decode(response.body);
     } else {
@@ -40,11 +40,11 @@ Future<Plants> getNearPlant(LocationData position,
   return output;
 }
 
-Future<List> getTags() async {
+Future<Tags> getTags() async {
   final response =
-      await http.get(Uri.parse('${dotenv.get('API_URI')}/api/tag'));
+      await http.get(Uri.parse('http://${dotenv.get('API_IP')}/api/tag'));
   if (response.statusCode == 200) {
-    final List data = jsonDecode(response.body);
+    final data = Tags.fromJson(jsonDecode(response.body));
     return data;
   } else {
     throw Exception('Failed to load tags');
@@ -77,4 +77,32 @@ Future<Plants> searchPlant(List<int> tag) async {
     print(err);
   }
   return plants;
+}
+
+class Tag {
+  final String name;
+  final int id;
+  Tag({required this.name, required this.id});
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(name: json['name'], id: json['id']);
+  }
+}
+
+class Tags {
+  final List<Tag> tags;
+  Tags({required this.tags});
+  factory Tags.fromJson(List<dynamic> json) {
+    List<Tag> tags = [];
+    for (var i = 0; i < json.length; i++) {
+      tags.add(Tag.fromJson(json[i]));
+    }
+    return Tags(tags: tags);
+  }
+  List<String> get tags_list {
+    List<String> output = [];
+    for (var i = 0; i < tags.length; i++) {
+      output.add(tags[i].name);
+    }
+    return output;
+  }
 }

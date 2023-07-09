@@ -46,7 +46,7 @@ class NotificationController {
 
   Future<void> notifyPlant(LocationData position, DateTime dt) async {
     var data = [];
-    if (dt.difference(lastNotificationTime).inSeconds < 20) {
+    if (dt.difference(lastNotificationTime).inSeconds < 180) {
       return;
     }
     print("try to notify");

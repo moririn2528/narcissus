@@ -1,288 +1,188 @@
-// import 'dart:developer';
-// import 'dart:async';
-// import 'package:app/handle_api/gcs_api.dart';
-// import '../model.dart';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import '../error_dialog/error_dialog.dart';
-// import '../search/search.dart';
-// import '../search/provider.dart';
-// import './upload_util.dart';
-// import '../location_state/location_state.dart';
-// import 'dart:io';
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:app/util/snackbar.dart';
+import 'package:app/upload/upload_util.dart';
+import 'package:app/upload/check_image.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:app/handle_api/handle.dart';
+import 'package:app/location_state/location_state.dart';
+import 'package:app/handle_api/gcs_api.dart';
+import 'dart:io';
+import 'package:app/util/circle.dart';
 
-// class UploadPage extends StatefulWidget {
-//   const UploadPage({Key? key}) : super(key: key);
+class UploadPage extends StatefulWidget {
+  final LocationState locationState;
+  UploadPage({required this.locationState});
+  @override
+  State<UploadPage> createState() => UploadPageState();
+}
 
-//   @override
-//   _UploadPageState createState() => _UploadPageState();
-// }
+class UploadPageState extends State<UploadPage> {
+  @override
+  // two buttons to get image from camera or gallery
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Upload'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                // get image from camera
+                final status = await Permission.camera.request();
+                if (status.isGranted) {
+                  try {
+                    upload_navigation_camera();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('カメラの起動に失敗しました'),
+                    );
+                  }
+                } else {
+                  if (validate()) {
+                    // show snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('カメラの使用が許可されていません'),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('位置情報を有効にしてください'),
+                    );
+                  }
+                }
+              },
+              child: const Text('カメラから投稿'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // get image from gallery
+                final status = await Permission.storage.request();
+                if (status.isGranted) {
+                  try {
+                    upload_navigation_gallery();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('ギャラリーの起動に失敗しました'),
+                    );
+                  }
+                } else {
+                  if (validate()) {
+                    // show snackbar
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('ストレージの使用が許可されていません'),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      redsnackbar('位置情報を有効にしてください'),
+                    );
+                  }
+                }
+              },
+              child: const Text('アルバムから投稿'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-// class _UploadPageState extends State<UploadPage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("アップロード"),
-//       ),
-//       body: UploadGroup(),
-//     );
-//   }
-// }
+  // get identified tags from image
+  Future<List<String>> analize_plant(File image) async {
+    List<String> tags = [];
+    String random_hash = DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      await uploadImage(image, random_hash);
+      tags = await plant_identify(random_hash)
+          .then((value) => value['identifies']);
+      await delete_post(random_hash);
+    } catch (e) {
+      delete_post(random_hash);
+      ScaffoldMessenger.of(context).showSnackBar(
+        redsnackbar('画像の解析に失敗しました'),
+      );
+    }
+    return tags;
+  }
 
-// class UploadGroup extends StatefulWidget {
-//   const UploadGroup({Key? key}) : super(key: key);
+  void upload_navigation_camera() async {
+    String random_hash = DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      // get image from camera
+      final File image = await image_picker_camera();
+      showWaitingDialog(context);
+      // get identified tags from image
 
-//   @override
-//   _UploadGroupState createState() => _UploadGroupState();
-// }
+      await upload_to_gcs(image, random_hash);
+      List<String> names = await analize_plant(image);
+      // get all tags
+      Tags tags = await getTags();
+      await delete_post(random_hash);
+      Navigator.pop(context);
+      // move to check image page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CheckimagePage(
+            image: image,
+            candidate_tags: tags.tags_list,
+            candidate_names: names,
+            locationState: widget.locationState,
+          ),
+        ),
+      );
+    } catch (e) {
+      await delete_post(random_hash);
+      Navigator.pop(context);
+      throw Exception('カメラの起動に失敗しました');
+    }
+  }
 
-// class _UploadGroupState extends State<UploadGroup> {
-//   @override
-//   Widget build(BuildContext context) {
-//     // UIの部分はここに書く。
-//     return Column(children: [
-//       ElevatedButton(
-//           onPressed: (() => Navigator.of(context).push(MaterialPageRoute<void>(
-//                 builder: (BuildContext context) {
-//                   return FormPage(func: getImageFromCamera());
-//                 },
-//               ))),
-//           child: const Text("カメラからアップロード")),
-// // ライブラリからの選択
-//       ElevatedButton(
-//           onPressed: (() => Navigator.of(context).push(MaterialPageRoute<void>(
-//                 builder: (BuildContext context) {
-//                   return FormPage(func: getImageFromLibrary());
-//                 },
-//               ))),
-//           child: const Text('ライブラリ写真から選択')),
-//     ]);
-//   }
-// }
+  void upload_navigation_gallery() async {
+    String random_hash = DateTime.now().millisecondsSinceEpoch.toString();
+    try {
+      // get image from gallery
+      final File image = await image_picker_gallery();
+      showWaitingDialog(context);
+      // get identified tags from image
 
-// class FormPage extends StatefulWidget {
-//   final Future<Widget> func;
-//   FormPage({required this.func});
+      upload_to_gcs(image, random_hash);
+      List<String> names = await analize_plant(image);
+      // get all tags
+      Tags tags = await getTags();
+      await delete_from_gcs(random_hash);
+      Navigator.pop(context);
+      // move to check image page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CheckimagePage(
+            image: image,
+            candidate_tags: tags.tags_list,
+            candidate_names: names,
+            locationState: widget.locationState,
+          ),
+        ),
+      );
+    } catch (e) {
+      await delete_post(random_hash);
+      Navigator.pop(context);
+      throw Exception('ギャラリーの起動に失敗しました');
+    }
+  }
 
-//   @override
-//   _FormPageState createState() => _FormPageState();
-// }
-
-// class _FormPageState extends State<FormPage> {
-//   final _formKey = GlobalKey<FormState>();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//         child: FutureBuilder(
-//       future: widget.func,
-//       builder: ((context, snapshot) {
-//         if (snapshot.hasError ||
-//             snapshot.hasData == false ||
-//             snapshot.connectionState != ConnectionState.done) {
-//           return const CircularProgressIndicator();
-//         } else if (snapshot.connectionState == ConnectionState.done) {
-//           return snapshot.data!;
-//         } else {
-//           return Error_Dialog("エラー", "写真の読み込み時にエラーが発生しました。");
-//         }
-//       }),
-//     ));
-//   }
-// }
-
-// Future<Widget> getImageFromCamera() async {
-//   List<String> candidates = [];
-//   String name = "";
-//   UploadInfo info;
-//   Future<dynamic> picked;
-//   File image = File("/assets/images/default.png");
-//   String hash = DateTime.now()
-//       .toString()
-//       .replaceAll(" ", "")
-//       .replaceAll(":", "")
-//       .replaceAll(".", "");
-//   if (await Permission.camera.request().isGranted &&
-//       await Permission.location.request().isGranted) {
-//     picked = ImagePicker().pickImage(source: ImageSource.camera).then((value) {
-//       try {
-//         // 画像をアップロード
-//         image = File(value!.path);
-//         uploadImage(image, hash);
-//         sendVisionAI(hash).then((value) => candidates = value);
-//         determinePosition().then((value) {
-//           info = UploadInfo(
-//               candidates: candidates,
-//               name: name,
-//               hash: hash,
-//               image: image,
-//               latitude: value.latitude,
-//               longitude: value.longitude,
-//               tags: []);
-//           return UploadForm(info);
-//         });
-//       } catch (e) {
-//         delete_from_gcs(hash);
-//       }
-//     });
-//   } else {
-//     return Error_Dialog("カメラ", "カメラの使用が許可されていません。");
-//   }
-//   return Error_Dialog("画像のアップロードに失敗しました", "時間をおいてもう一度やり直してください");
-// }
-
-// Future<Widget> getImageFromLibrary() async {
-//   List<String> candidates = [];
-//   String name = "";
-//   UploadInfo info;
-//   XFile? picked;
-//   Widget out_widget = const CircularProgressIndicator();
-//   File image = File("/assets/images/default.png");
-//   String hash = DateTime.now()
-//       .toString()
-//       .replaceAll(" ", "")
-//       .replaceAll(":", "")
-//       .replaceAll(".", "");
-//   if (await Permission.storage.request().isGranted &&
-//       await Permission.location.request().isGranted) {
-//     picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-//     try {
-//       // 画像をアップロード
-//       image = File(picked!.path);
-//       final pos = await determinePosition();
-//       log("実行された1");
-//       await uploadImage(image, hash);
-//       log("実行された2");
-//       final candidates = (await sendVisionAI(hash))["identities"];
-//       log("実行された3");
-//       info = UploadInfo(
-//           candidates: candidates["identities"],
-//           name: name,
-//           hash: hash,
-//           image: image,
-//           latitude: pos.latitude,
-//           longitude: pos.longitude,
-//           tags: []);
-//       log("実行された4");
-//       return UploadForm(info);
-//     } catch (e) {
-//       delete_from_gcs(hash);
-//       return Error_Dialog("画像のアップロードに失敗しました", "時間をおいてもう一度やり直してください");
-//     }
-//   } else {
-//     return Error_Dialog("ライブラリ", "ライブラリの使用が許可されていません。");
-//   }
-// }
-
-// class UploadForm extends StatelessWidget {
-//   UploadInfo info;
-
-//   UploadForm(this.info);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final SearchProvider searchProvider = SearchProvider();
-//     return Scaffold(
-//         appBar: AppBar(title: Text("アップロード")),
-//         body: SingleChildScrollView(
-//           child: Column(
-//             children: <Widget>[
-//               Center(
-//                 child: info.image == null
-//                     ? Text('No image selected.')
-//                     : Image.file(info.image),
-//               ),
-//               Row(
-//                 children: [
-//                   Text("候補"),
-//                   SizedBox(
-//                     width: 200,
-//                     height: 50,
-//                     child: ListView.builder(
-//                       scrollDirection: Axis.horizontal,
-//                       shrinkWrap: true,
-//                       itemCount: info.candidates.length,
-//                       itemBuilder: (BuildContext context, int index) {
-//                         return ListTile(
-//                           title: Text(info.candidates[index]),
-//                           onTap: () {
-//                             info.name = info.candidates[index];
-//                           },
-//                         );
-//                       },
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               Center(
-//                 child: Row(
-//                   children: [
-//                     Text("植物名:"),
-//                     Flexible(
-//                       child: TextFormField(
-//                         initialValue: info.name,
-//                         onChanged: (text) {
-//                           info.name = text;
-//                         },
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//               ),
-//               SizedBox(
-//                   width: MediaQuery.of(context).size.width,
-//                   height: MediaQuery.of(context).size.height / 3,
-//                   child: SearchGroup(
-//                     searchProvider: searchProvider,
-//                   )),
-//               OutlinedButton(
-//                   onPressed: (() {
-//                     // アップロード処理
-//                     final List<String> tag_name = [];
-//                     for (var i = 0; i < searchProvider.keep_tags.length; i++) {
-//                       tag_name.add(searchProvider.keep_tags[i]["name"]);
-//                     }
-//                     info.tags = tag_name;
-//                     showUploadingDialog(context, info);
-//                   }),
-//                   child: Text("アップロード")),
-//             ],
-//           ),
-//         ));
-//   }
-// }
-
-// void showUploadingDialog(context, UploadInfo info) {
-//   showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text("アップロード"),
-//           content: FutureBuilder(
-//             future: upload_post(info),
-//             builder: (BuildContext context, AsyncSnapshot snapshot) {
-//               try {
-//                 if (snapshot.hasData) {
-//                   return Text("アップロードしました");
-//                 } else {
-//                   return Center(
-//                     child: CircularProgressIndicator(),
-//                   );
-//                 }
-//               } catch (e) {
-//                 return Text("アップロードに失敗しました、アプリを再起動してみてください\n" + e.toString());
-//               }
-//             },
-//           ),
-//           actions: [
-//             OutlinedButton(
-//                 onPressed: () {
-//                   Navigator.of(context).pop();
-//                 },
-//                 child: Text("閉じる")),
-//           ],
-//         );
-//       });
-// }
+  bool validate() {
+    if (widget.locationState.position == null ||
+        widget.locationState.position.latitude == 0 ||
+        widget.locationState.position.longitude == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        redsnackbar('位置情報を有効にしてください'),
+      );
+      return false;
+    }
+    return true;
+  }
+}

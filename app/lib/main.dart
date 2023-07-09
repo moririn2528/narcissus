@@ -9,6 +9,7 @@ import 'package:app/location_state/location_state.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:app/notification/notification.dart';
+import 'package:app/upload/upload.dart';
 import 'dart:async';
 
 Future main() async {
@@ -56,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
       LocalPlantPage(locationState: widget.locationState),
       MapPage(locationState: widget.locationState),
       SearchPage(),
+      UploadPage(locationState: widget.locationState),
     ];
     return Scaffold(
       body: IndexedStack(
@@ -89,6 +91,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? widget._selectedIconColor
                     : widget._unselectedIconColor),
             label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.upload,
+                color: widget._idx == 3
+                    ? widget._selectedIconColor
+                    : widget._unselectedIconColor),
+            label: 'Upload',
           ),
         ],
         currentIndex: widget._idx,

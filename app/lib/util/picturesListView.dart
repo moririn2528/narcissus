@@ -36,7 +36,7 @@ class NetworkPicturesListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Container(
         child: ListView.builder(
             shrinkWrap: true,
             itemCount: imageUrls.plants_list.length,
