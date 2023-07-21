@@ -41,7 +41,7 @@ class UploadInfo {
 }
 
 Future<void> upload_post(UploadInfo info) async {
-  String url = "http://${dotenv.get('API_IP')}/api/post/upload";
+  String url = "https://${dotenv.get('API_IP')}/api/post/upload";
   Map<String, String> headers = {'content-type': 'application/json'};
   String body = json.encode(info.toJson());
   try {

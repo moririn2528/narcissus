@@ -85,7 +85,7 @@ class MapPageState extends State<MapPage> {
   void initState() {
     update_list();
     plants.update_plants(widget.locationState.position);
-    Timer.periodic(const Duration(seconds: 5), (timer) {
+    Timer.periodic(const Duration(seconds: 10), (timer) {
       update_list();
     });
     Future.delayed(const Duration(seconds: 7), () {

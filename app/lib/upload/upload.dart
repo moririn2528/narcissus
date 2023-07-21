@@ -61,7 +61,7 @@ class UploadPageState extends State<UploadPage> {
               onPressed: () async {
                 // get image from gallery
                 final status = await Permission.storage.request();
-                if (status.isGranted) {
+                if (validate()) {
                   try {
                     upload_navigation_gallery();
                   } catch (e) {
@@ -70,16 +70,9 @@ class UploadPageState extends State<UploadPage> {
                     );
                   }
                 } else {
-                  if (validate()) {
-                    // show snackbar
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      redsnackbar('ストレージの使用が許可されていません'),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      redsnackbar('位置情報を有効にしてください'),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    redsnackbar('位置情報を有効にしてください'),
+                  );
                 }
               },
               child: const Text('アルバムから投稿'),
