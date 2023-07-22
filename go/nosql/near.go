@@ -59,7 +59,7 @@ func (*DatabaseNear) ListNear(ctx context.Context, latitude float64, longitude f
 			TimeStamp: uploadPost.UploadTime,
 		})
 	}
-	logger.Debugf("nears: %v, count: %v", nears, cnt)
+	logger.Debugf("nears: %v, count: %v, used: %v", nears, cnt, used)
 	min := func(a, b int) int {
 		if a < b {
 			return a
