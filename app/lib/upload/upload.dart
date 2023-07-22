@@ -106,15 +106,16 @@ class UploadPageState extends State<UploadPage> {
     try {
       // get image from camera
       final File image = await image_picker_camera();
-      showWaitingDialog(context);
+      // showWaitingDialog(context);
       // get identified tags from image
 
-      await upload_to_gcs(image, random_hash);
-      List<String> names = await analize_plant(image);
+      // await upload_to_gcs(image, random_hash);
+      // List<String> names = await analize_plant(image);
+      List<String> names = [];
       // get all tags
       Tags tags = await getTags();
-      await delete_post(random_hash);
-      Navigator.pop(context);
+      // await delete_post(random_hash);
+      // Navigator.pop(context);
       // move to check image page
       Navigator.push(
         context,
@@ -139,15 +140,16 @@ class UploadPageState extends State<UploadPage> {
     try {
       // get image from gallery
       final File image = await image_picker_gallery();
-      showWaitingDialog(context);
+      // showWaitingDialog(context);
       // get identified tags from image
 
-      upload_to_gcs(image, random_hash);
-      List<String> names = await analize_plant(image);
+      // upload_to_gcs(image, random_hash);
+      // List<String> names = await analize_plant(image);
+      List<String> names = [];
       // get all tags
       Tags tags = await getTags();
-      await delete_from_gcs(random_hash);
-      Navigator.pop(context);
+      // await delete_from_gcs(random_hash);
+      // Navigator.pop(context);
       // move to check image page
       Navigator.push(
         context,
